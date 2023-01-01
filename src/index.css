@@ -1,0 +1,13 @@
+/* css变量定义到这里 */
+:root {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 1vw;
+  font-family: "Arial", "Microsoft YaHei", "黑体", "宋体", sans-serif;
+}
