@@ -1,4 +1,4 @@
-import style from "./index.module.css";
+import style from "./index.module.scss";
 const Login = () => {
     return <div className={style['login-form-wrap']}>
         <h1>Login In</h1>
