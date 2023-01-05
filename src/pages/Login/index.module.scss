@@ -55,7 +55,7 @@ input[type='password'] {
         0 1px 2px rgba(255, 255, 255, 0.1);
 }
 
-.login-form>input[type='submit'] {
+.login-form input[type='submit'] {
     font-weight: 400;
     background: linear-gradient(to bottom, rgba(224, 224, 224, 1) 0%, rgba(206, 206, 206, 1) 100%);
     display: block;
@@ -71,13 +71,34 @@ input[type='password'] {
     box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.17), 0 1px 0 rgba(255, 255, 255, 0.36) inset;
 }
 
-.login-form>input[type='submit']:hover {
+.login-form input[type='submit']:hover {
     background: #DDD;
     cursor: pointer;
 }
 
-.login-form>input[type='submit']:active {
+.login-form input[type='submit']:active {
     padding-top: 9px;
     padding-bottom: 7px;
     background: #C9C9C9;
+}
+.login-form-radio{
+    padding-left:5%;
+}
+.login-form input[type="radio"]{
+    width:45%;
+    margin-top:20px;
+    position:relative;
+}
+.login-form input[type="radio"]:first-child::before{
+    content:"员工登录";
+    position: absolute;
+    left:-1em;
+}
+.login-form input[type="radio"]:last-child::before{
+    content:"管理员登录";
+    position: absolute;
+    left:-1.5em;
+}
+.login-form input[type="radio"]:hover{
+    cursor:pointer;
 }

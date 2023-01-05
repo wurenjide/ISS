@@ -1,5 +1,13 @@
 //判断是否登录
-const verifyLogin = () => {
-    return {code:"",data:{isSuccess:false,state:0},message:""}
+export const verifyLogin = () => {
+    let is_login = localStorage.getItem("is_login");
+    let is_administrator = localStorage.getItem("is_administrator");
+    return { is_login, is_administrator };
 }
-export default verifyLogin;
+
+//退出登录
+export const loginOut = () => {
+    localStorage.removeItem("uid");
+    localStorage.removeItem("is_administrator");
+    localStorage.removeItem("is_login");
+}
