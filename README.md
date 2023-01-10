@@ -7,5 +7,7 @@ npm start
 - assets存放静态文件和一些全局css文件
 - components存放公共组件
 - pages存放路由组件
+    - admin:后台管理系统路由
+    - user:前台管理路由
 - utils存放一些需要使用的js文件
 - layout文件夹存放页面布局组件

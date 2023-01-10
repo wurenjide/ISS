@@ -2,6 +2,7 @@ import { inject, observer } from "mobx-react";
 const UserHome = ({ userStore }) => {
     return <>
         前台首页
+        {userStore.totalTodos}
         <button onClick={() => {
             userStore.addTodo("sb")
             console.log(userStore.totalTodos)
