@@ -1,6 +1,9 @@
-import TodoStore from "./user";
-const todoStore = new TodoStore();
+import UserStore from "./user";
+import AdminStore from "./admin";
+let userStore = new UserStore();
+let adminStore = new AdminStore();
 const stores = {
-    todoStore
+    userStore,
+    adminStore
 }
 export default stores;

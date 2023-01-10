@@ -1,12 +1,12 @@
 import { inject, observer } from "mobx-react";
-const UserHome = ({ todoStore }) => {
+const UserHome = ({ userStore }) => {
     return <>
         前台首页
         <button onClick={() => {
-            todoStore.addTodo("sb")
-            console.log(todoStore.totalTodos)
-            console.log(todoStore.todoList)
-        }}>点击添加todoStore库中的任务</button>
+            userStore.addTodo("sb")
+            console.log(userStore.totalTodos)
+            console.log(userStore.todoList)
+        }}>点击添加userStore库中的任务</button>
     </>
 }
-export default inject("todoStore")(observer(UserHome));
+export default inject("userStore")(observer(UserHome));
