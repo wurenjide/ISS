@@ -3,6 +3,7 @@ import Login from "../pages/Login";
 import UserHome from "../pages/User/Home";
 import AdminHome from "../pages/Admin/Home";
 import PageNotFound from "../pages/PageNotFound";
+import System from "../pages/System";
 //路由文件
 const routes = [
     {
@@ -24,6 +25,10 @@ const routes = [
     {
         path: "/login",
         element: <Login />
+    },
+    {
+        path: "/System",
+        element: <System />
     },
     {
         path: "*",

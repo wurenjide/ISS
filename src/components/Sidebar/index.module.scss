@@ -1,0 +1,38 @@
+.sidebar-container1 {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    width: 200px;
+    height: 100vh;
+    background: #001529;
+    overflow: auto;
+    transition: width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s;
+    box-shadow: 2px 0 6px rgb(0 21 41 / 30%);
+  }
+  .sidebar-container2 {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    width: 80px;
+    height: 100vh;
+    background: #001529;
+    overflow: auto;
+    transition: width 0.3s cubic-bezier(0.2, 0, 0, 1) 0s;
+    box-shadow: 2px 0 6px rgb(0 21 41 / 30%);
+  }
+  .ant-menu-inline,
+  .ant-menu-vertical,
+  .ant-menu-vertical-left {
+    border-right: 1px solid transparent;
+  }
+//   .logo {
+//     flex;
+//     items-center;
+//     justify-center;
+//     text-red-200;
+//     text-size-20px;
+//     text-center;
+//     h-50px;
+//   }
