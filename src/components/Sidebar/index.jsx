@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { inject, observer } from "mobx-react";
 import style from "./index.module.scss";
 import {
   AppstoreOutlined,
@@ -19,6 +20,7 @@ function getItem(label, key, icon, children, type) {
     type,
   };
 }
+
 const items = [
   getItem('Option 1', '1', <PieChartOutlined />),
   getItem('Option 2', '2', <DesktopOutlined />),
@@ -35,14 +37,13 @@ const items = [
     getItem('Submenu', 'sub3', null, [getItem('Option 11', '11'), getItem('Option 12', '12')]),
   ]),
 ];
-const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
+const Sidebar = ({appStore}) => {
   const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
+    appStore.changeState()
   };
   return (
     <div 
-    className={collapsed?style["sidebar-container2"]:style["sidebar-container1"]}
+    className={appStore.appState?style["sidebar-container2"]:style["sidebar-container1"]}
     >
       
       <Menu
@@ -50,7 +51,7 @@ const Sidebar = () => {
         defaultOpenKeys={['sub1']}
         mode="inline"
         theme="dark"
-        inlineCollapsed={collapsed}
+        inlineCollapsed={appStore.appState}
         items={items}
       /><Button
         type="primary"
@@ -59,9 +60,9 @@ const Sidebar = () => {
           marginBottom: 16,
         }}
       >
-        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+        {appStore.appState ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
       </Button>
     </div>
   );
 };
-export default Sidebar;
+export default inject("appStore")(observer(Sidebar));;

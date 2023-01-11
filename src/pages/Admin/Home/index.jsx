@@ -1,12 +1,8 @@
-import {useEffect} from "react";
-// import { useNavigate} from "react-router-dom";
-const AdminHome = () => {
-    // const navigate = useNavigate();
-    useEffect(() => {
-        
-    }, []);
-    return <>
-        后台首页
-    </>
+import React from 'react'
+import style from "./index.module.scss";
+
+const AdminHome=()=>{
+  return <div>AdminHom</div>
+
 }
-export default AdminHome;
+export default AdminHome

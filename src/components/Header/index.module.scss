@@ -1,0 +1,22 @@
+.navbar {
+    box-shadow: 0 1px 4px rgb(0 21 41 / 8%);
+    flex: auto;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
+    background-color: red;
+}
+.flex{
+    display: contents;
+}
+.items-center{
+    align-items: center;
+}
+.b{
+    flex: auto;
+    font-size: 20px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    
+}
