@@ -1,37 +1,39 @@
-import {observable,action,computed} from "mobx";
+import { observable, action, computed, makeObservable } from "mobx";
 const INIT_TODO = {
     id: 1,
     text: 'mobx事例',
     completed: false
 }
 class TodoStore {
-    @observable 
+    @observable
     todoList = [INIT_TODO];
-    
-    @computed 
+    constructor() {
+        makeObservable(this);
+    }
+    @computed
     get totalTodos() {
         return this.todoList.length
     }
-    
-@action 
-    addTodo(text){
+
+    @action
+    addTodo(text) {
         const newTodo = {
             id: +new Date(),
             text,
             completed: false
         }
-    this.todoList = [...this.todoList, newTodo];
+        this.todoList = [...this.todoList, newTodo];
     }
     @action
     changeStatus(id) {
         this.todoList = this.todoList.map(item => {
             return item.id === id
-            ? {...item, completed: !item.completed}
-            : item
+                ? { ...item, completed: !item.completed }
+                : item
         })
     }
-    @action 
-    delTodo(id){
+    @action
+    delTodo(id) {
         this.todoList = this.todoList.filter(item => item.id !== id)
     }
     @action
