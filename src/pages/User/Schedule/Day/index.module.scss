@@ -1,0 +1,61 @@
+.meetingCard {
+    padding: 30px 10px;
+    display: flex;
+
+    .rowHead {
+        width: 60px;
+
+        .week {
+            width: 60;
+            height: 32.8px;
+            font-size: 13px;
+            line-height: 32.8px;
+        }
+    }
+
+    .rowBody {
+        flex: 1;
+
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            tr {
+                position: relative;
+                display: inline-table;
+                width: 100%;
+
+                td {
+                    height: 32px;
+                    padding: 0px;
+                    display: table-cell;
+                    vertical-align: inherit;
+                    border-left: 1px solid #e7ecef;
+                    border-bottom: 1px solid #e7ecef;
+                    width: calc(100% / 18);
+                }
+
+                .meetingSpan {
+                    top: 50%;
+                    transform: translate(0, -50%);
+                    position: absolute;
+                    height: 16px;
+                    background-color: #189;
+                    border-radius: 4px;
+                }
+            }
+        }
+
+        .timeCard {
+            height: 32px;
+
+            .timeSpan {
+                display: inline-table;
+                width: calc(100% / 9);
+                line-height: 32px;
+            }
+        }
+    }
+}

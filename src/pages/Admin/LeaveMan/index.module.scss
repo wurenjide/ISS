@@ -1,0 +1,8 @@
+.wrap {
+    word-break: break-all;
+    width: 200px;
+    overflow: auto;
+    scrollbar-width: none; /* firefox */
+   -ms-overflow-style: none; /* IE 10+ */
+   overflow:hidden;
+}

@@ -1,10 +1,12 @@
 import style from './App.module.scss';
 //引入antd全局样式
 import "antd/dist/reset.css";
+
 import { BrowserRouter } from "react-router-dom";
 import Layout from './components/Layout';
 import { Provider } from "mobx-react";
 import stores from './mobx';
+
 function App() {
   return (
     <BrowserRouter>

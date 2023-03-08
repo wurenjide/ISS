@@ -1,9 +1,12 @@
 import style from "./index.module.scss";
-import login from "../../api/common/login";
+import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { message } from "antd";
+import { message, Form, Input, Button, Checkbox, Radio, Space } from "antd";
+import Passwd from "./Passwd";
+import Note from "./Note";
 const Login = () => {
+    const [loginStyle,setLoginStyle]=useState("passwd");
     const navigate = useNavigate();
     useEffect(() => {
         const is_login = localStorage.getItem("is_login");
@@ -13,45 +16,18 @@ const Login = () => {
             is_administrator === "1" && navigate("/admin");
         }
     }, [navigate]);
-    const toLogin = async (event) => {
-        let form = new FormData(event.target);
-        event.preventDefault();
-        const res = await login(form);
-        let { code, data: { is_administrator, uid }, message: tips } = res;
-        if (code === 0) {
-            message.error(tips);
-            return;
-        }
-        //将用户信息存入本地
-        localStorage.setItem("is_login", 1);
-        localStorage.setItem("uid", uid);
-        localStorage.setItem("is_administrator", is_administrator);
-        message.success("登录成功!")
-        if (is_administrator === "0") {
-            navigate("/user");
-        } else {
-            navigate("/admin");
-        }
+    const onChange=(value)=>{
+        console.log(value.target.value)
+        setLoginStyle(value.target.value)
     }
+
     return <div className={style['login-form-wrap']}>
-        <h1>Login In</h1>
-        <form className={style['login-form']}
-            method="POST"
-            action="#"
-            onSubmit={toLogin}
-        >
-            <label>
-                <input type="text" name="Uid" required placeholder="Account" />
-            </label>
-            <label>
-                <input type="password" name="Passwd" required placeholder="Password" />
-            </label>
-            <label className={style['login-form-radio']}>
-                <input type="radio" name="is_administrator" defaultChecked />
-                <input type="radio" name="is_administrator" />
-            </label>
-            <input type="submit" value="Login" />
-        </form>
+        <h1>登录</h1>
+        <Radio.Group onChange={onChange} defaultValue="passwd" style={{margin:"10px"}}>
+            <Radio.Button value="passwd">密码登陆</Radio.Button>
+            <Radio.Button value="note">短信登陆</Radio.Button>
+        </Radio.Group>
+        {React.createElement(loginStyle=="passwd"?Passwd:Note)}
     </div>
 }
 export default Login;

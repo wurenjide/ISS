@@ -1,20 +1,41 @@
  .trigger {
-  padding: 0 24px;
-  font-size: 18px;
-  line-height: 64px;
-  cursor: pointer;
-  transition: color 0.3s;
-}
+   padding: 0 24px;
+   font-size: 18px;
+   line-height: 64px;
+   cursor: pointer;
+   transition: color 0.3s;
+ }
 
  .trigger:hover {
-  color: #1890ff;
-}
+   color: #1890ff;
+ }
 
  .logo {
-  height: 32px;
-  margin: 16px;
-  background: rgba(255, 255, 255, 0.3);
-  font-size: 20px;
-  text-align: center;
-  color: white;
-}
+   height: 32px;
+   margin: 16px;
+   background: rgba(255, 255, 255, 0.3);
+   font-size: 20px;
+   text-align: center;
+   color: white;
+ }
+
+ .header {
+   position: fixed;
+   top: 0;
+   right: 0;
+   width: auto;
+   height: 5rem;
+   padding: 0 10vw;
+   box-sizing: border-box;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   transition: 0.5s;
+   z-index: 1000;
+ }
+ .icon{
+  stroke: rgb(255, 255, 255,0.3);
+ }
+ .icon:hover{
+  stroke: white;
+ }

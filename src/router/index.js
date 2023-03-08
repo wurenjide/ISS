@@ -5,14 +5,20 @@ import PageNotFound from "../pages/PageNotFound";
 import Admin from "../pages/Admin";
 import AttMan from "../pages/Admin/AttMan";
 import AdminHome from "../pages/Admin/Home";
-import Dept from "../pages/Admin/Dept";
+import Store from "../pages/Admin/Store";
 import LeaveMan from "../pages/Admin/LeaveMan";
-import PerMan from "../pages/Admin/PerMan";
-import ProMan from "../pages/Admin/ProMan";
-import Role from "../pages/Admin/Role";
-import Salary from "../pages/Admin/Salary";
+import Raudit from "../pages/Admin/Raudit";
+import ScheduleMan from "../pages/Admin/ScheduleMan";
 import Staff from "../pages/Admin/Staff";
-import TripMan from "../pages/Admin/TripMan";
+import Leave from "../pages/User/Leave";
+import User from "../pages/User";
+import Personal from "../pages/User/Personal";
+import Schedule from "../pages/User/Schedule";
+import ScheduleRule from "../pages/Admin/ScheduleRule";
+import Rule from "../pages/User/Rule";
+import Register from "../pages/Register";
+import PersonAd from "../pages/Admin/PersonAd";
+import Suggest from "../pages/User/Suggest";
 
 //路由文件
 const routes = [
@@ -23,8 +29,34 @@ const routes = [
     {
         path: "/user",
         element: <AuthRoute>
-            <UserHome />
-        </AuthRoute>
+            <User />
+        </AuthRoute>,
+        children:[
+            {
+                path:"/user/home",
+                element:<UserHome/>,
+            },
+            {
+                path:"/user/leave",
+                element:<Leave/>,
+            },
+            {
+                path:"/user/personal",
+                element:<Personal/>,
+            },
+            {
+                path:"/user/schedule",
+                element:<Schedule/>,
+            },
+            {
+                path:"/user/rule",
+                element:<Rule/>
+            },
+            {
+                path:"/user/suggest",
+                element:<Suggest/>,
+            },
+        ],
     },
     {
         path: "/admin",
@@ -37,8 +69,8 @@ const routes = [
                 element:<AttMan/>
             },
             {
-                path:"/admin/dept",
-                element:<Dept/>
+                path:"/admin/store",
+                element:<Store/>
             },
             {
                 path:"/admin/home",
@@ -49,28 +81,24 @@ const routes = [
                 element:<LeaveMan/>
             },
             {
-                path:"/admin/perman",
-                element:<PerMan/>
+                path:"/admin/raudit",
+                element:<Raudit/>
             },
             {
-                path:"/admin/proman",
-                element:<ProMan/>
-            },
-            {
-                path:"/admin/role",
-                element:<Role/>
-            },
-            {
-                path:"/admin/salary",
-                element:<Salary/>
+                path:"/admin/scheduleman",
+                element:<ScheduleMan/>
             },
             {
                 path:"/admin/staff",
-                element:<Staff/>
+                element:<Staff/>,
             },
             {
-                path:"/admin/tripMan",
-                element:<TripMan/>
+                path:"/admin/schedulerule",
+                element:<ScheduleRule/>,
+            },
+            {
+                path:"/admin/personad",
+                element:<PersonAd/>
             }
 
         ]
@@ -80,51 +108,8 @@ const routes = [
         element: <Login />
     },
     {
-        path: "/Admin",
-        element: <Admin />,
-        children:[
-            {
-                path:"/Admin/AttMan",
-                element:<AttMan/>
-            },
-            {
-                path:"/Admin/Dept",
-                element:<Dept/>
-            },
-            {
-                path:"/Admin/Home",
-                element:<AdminHome/>
-            },
-            {
-                path:"/Admin/LeaveMan",
-                element:<LeaveMan/>
-            },
-            {
-                path:"/Admin/PerMan",
-                element:<PerMan/>
-            },
-            {
-                path:"/Admin/ProMan",
-                element:<ProMan/>
-            },
-            {
-                path:"/Admin/Role",
-                element:<Role/>
-            },
-            {
-                path:"/Admin/Salary",
-                element:<Salary/>
-            },
-            {
-                path:"/Admin/Staff",
-                element:<Staff/>
-            },
-            {
-                path:"/Admin/TripMan",
-                element:<TripMan/>
-            }
-
-        ]
+        path:"/register",
+        element:<Register/>
     },
     {
         path: "*",
