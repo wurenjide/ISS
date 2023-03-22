@@ -1,6 +1,6 @@
 import request from "../../../utils/request";
 export function getAttInfo(data) {
-    return request({ method: "get", url: "getAttInfo", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    return request({ method: "get", url: "getAttInfo", params:data});
 }
 export function searchAttInfo(data){
     return request({ method: "get", url: "searchAttInfo", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });

@@ -3,7 +3,7 @@ import style from "./index.module.scss";
 import dayjs from 'dayjs';
 import { EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
 import { getStaffInfo, deleteStaffInfo, updateStaffInfo, searchStaffInfo, addStaffInfo } from "../../../api/Admin/Staff"
-import { Button, Form, Input, InputNumber, Select, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Avatar } from 'antd';
+import { Button, Form, Input, InputNumber, Popconfirm, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Avatar } from 'antd';
 
 const Staff = () => {
 
@@ -12,7 +12,7 @@ const Staff = () => {
   const [drawer, setDrawer] = useState(false)
   const [useIn, setUseIn] = useState({});
   const [data, setData] = useState([])
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false)
 
   const getData = async () => {
     setLoading(true)
@@ -42,9 +42,9 @@ const Staff = () => {
   const onFinish = async (values) => {
     if (title == "修改") {
       let res = await updateStaffInfo(values)
-    } else if(title == "新增"){
+    } else if (title == "新增") {
       let res = await addStaffInfo(values)
-    }else{
+    } else {
       alert("操作失败，请刷新后重试")
     }
   };
@@ -52,6 +52,10 @@ const Staff = () => {
     form.resetFields();
   };
 
+  const deleteStaff = async (s) => {
+    let res=await deleteStaffInfo(s);
+
+  }
 
   const columns = [
     {
@@ -104,8 +108,17 @@ const Staff = () => {
       fixed: 'right',
       width: 110,
       render: (s) => <div>
-        <Button onClick={() => showDrawer('修改', s)}>修改</Button>
-        <Button>删除</Button>
+        <Space>
+          <Button onClick={() => showDrawer('修改', s)}>修改</Button>
+          <Popconfirm
+            description="是否删除这条数据?"
+            onConfirm={() => deleteStaff(s)}
+            okText="是"
+            cancelText="否"
+          >
+            <Button>删除</Button>
+          </Popconfirm>
+        </Space>
       </div>,
     },
   ];
@@ -137,7 +150,7 @@ const Staff = () => {
       </Row>
     </Form>
     <Table columns={columns} dataSource={data}
-    rowKey={r=>r.id}
+      rowKey={r => r.id}
       pagination={{ position: ["bottomCenter"], showSizeChanger: false }}
       loading={loading}
     />

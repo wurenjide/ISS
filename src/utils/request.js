@@ -1,8 +1,10 @@
 import axios from "axios";
 const request = axios.create({
-    baseURL: "https://www.fastmock.site/mock/9c46fd8e0fac8a67df061f3c386124a8/api/",
+    baseURL: "http://192.168.2.115:10010",
+    // baseURL:"https://www.fastmock.site/mock/9c46fd8e0fac8a67df061f3c386124a8/api",
     timeout: 3000,
-    withCredentials:true
+    // withCredentials:true,
+    // changeOrigin: true
 });
 request.interceptors.request.use(config => {
     return config;

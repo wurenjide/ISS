@@ -8,3 +8,6 @@ export function searchAttInfo(data){
 export function updateStore(data){
     return request({ method: "post", url: "updateAttInfo", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
 }
+export function deleteS(data){
+    return request({ method: "post", url: "deleteS", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+}

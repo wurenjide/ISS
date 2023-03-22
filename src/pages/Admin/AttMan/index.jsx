@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import style from "./index.module.scss";
 import { Button, Form, Input, Select, Col, Row, Table, Tag, DatePicker, Space, Drawer, TimePicker, Avatar } from 'antd';
-import { getAttInfo } from "../../../api/Admin/AttMan"
+import { getAttInfo, updateAttInfo, deleteAttInfo } from "../../../api/Admin/AttMan"
 
 
 const AttMan = () => {
@@ -82,7 +82,7 @@ const AttMan = () => {
             width: 110,
             render: (s) => <div>
                 <Button onClick={() => showDrawer(s)}>修改</Button>
-                <Button>删除</Button>
+                <Button onClick={() => deleteAtt(s)}>删除</Button>
             </div>,
         },
     ];
@@ -91,12 +91,12 @@ const AttMan = () => {
     const [useIn, setUseIn] = useState({})
     const [form] = Form.useForm();
     const [data, setData] = useState([])
-    const [loading,setLoading]=useState(false)
+    const [loading, setLoading] = useState(false)
 
 
     const getData = async () => {
         setLoading(true)
-        let res = await getAttInfo()
+        let res = await getAttInfo();
         console.log(res)
         if (res.code != "") {
             setData(res.data.employee)
@@ -115,17 +115,21 @@ const AttMan = () => {
         setUseIn({})
     };
 
-    const onSearch=async()=>{
-
+    const onSearch = () => {
+        getData(form)
     }
-    const onFinish = (values) => {
+    const onFinish = async (values) => {
+        let res = await updateAttInfo(values)
         console.log(values);
     };
     const onReset = () => {
         form.resetFields();
     };
 
-    
+    const deleteAtt = async (s) => {
+        let res = await deleteAttInfo(s);
+    }
+
 
     return <div>
         <Form form={form} name="control-hooks" onFinish={onSearch}>
@@ -172,8 +176,8 @@ const AttMan = () => {
             </Row>
         </Form>
         <Table columns={columns} dataSource={data} rowKey={r => r.id}
-        pagination={{position: ["bottomCenter"],showSizeChanger:false}}
-        loading={loading}
+            pagination={{ position: ["bottomCenter"], showSizeChanger: false }}
+            loading={loading}
         />
         <Drawer title="修改" open={drawer} onClose={onCloseDrawer} destroyOnClose={true}>
             <Form onFinish={onFinish}>
@@ -193,7 +197,7 @@ const AttMan = () => {
                     />
                 </Form.Item>
                 <Form.Item>
-                    <Button  type="primary" htmlType="submit">确认</Button>
+                    <Button type="primary" htmlType="submit">确认</Button>
                 </Form.Item>
             </Form>
         </Drawer>

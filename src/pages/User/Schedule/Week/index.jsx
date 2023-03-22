@@ -1,21 +1,22 @@
 import React, { useState } from 'react'
 import { UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import {getWeekInfo} from "../../../../api/Admin/ScheduleMan"
-import { Table, Radio, Space, DatePicker, Button, Modal, Form, Input, TimePicker,Avatar } from 'antd';
+import { getWeekInfo } from "../../../../api/Admin/ScheduleMan"
+import { Table, Radio, Space, DatePicker, Button, Modal, Form, Input, TimePicker, Avatar } from 'antd';
 const { RangePicker } = TimePicker;
 // import style from "./index.module.scss";
 
 const Week = () => {
+    const [id,setID]=useState(localStorage.getItem("id"));
     const [value, setValue] = useState(null);
-    const [loading,setLoading]=useState(false)
+    const [loading, setLoading] = useState(false)
     const [data, setData] = useState([])
 
 
 
-    const getData = async () => {
+    const getData = async (value) => {
         setLoading(true)
-        let res = await getWeekInfo()
+        let res = await getWeekInfo(value)
         let monday = []
         let tuesday = []
         let wednesday = []
@@ -25,7 +26,6 @@ const Week = () => {
         let sunday = []
         let data1 = []
         res.date.week.forEach((e) => {
-            console.log(dayjs(e.date).day(),e.date)
             switch (dayjs(e.date).day()) {
                 case 1:
                     monday.push(e)
@@ -53,7 +53,6 @@ const Week = () => {
             }
         })
         for (let i = 0; i < 5; i++) {
-            console.log(monday[i])
             data1.push({
                 key: i,
                 monday: monday[i],
@@ -65,7 +64,6 @@ const Week = () => {
                 sunday: sunday[i],
             })
         }
-        console.log(data1)
         setData(data1)
         setLoading(false)
     }
@@ -73,13 +71,13 @@ const Week = () => {
         getData()
     })
     const onChangeTime = (time) => {
-        console.log(time)
+        // console.log(time)
         setValue(time);
     };
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [staff, setStaff] = useState({});
     const onChange = (e) => {
-        console.log(dayjs(e).day(1).format("YYYY-MM-DD"),dayjs(e).day(7).format("YYYY-MM-DD"));
+        // console.log(dayjs(e).day(1).format("YYYY-MM-DD"),dayjs(e).day(7).format("YYYY-MM-DD"));
     };
     const onChangeStaff = (staff) => {
         setStaff(staff)
@@ -94,10 +92,10 @@ const Week = () => {
             dataIndex: "monday",
             render: (_, s) => {
                 let day = s.monday
-                return (<div style={{textAlign:"center"}}>
+                return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar  src={day.avatar}/>
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <div>{day.name}</div>
                             <div>职位：{day.career}</div>
@@ -112,10 +110,10 @@ const Week = () => {
             dataIndex: "tuesday",
             render: (_, s) => {
                 let day = s.tuesday
-                return (<div style={{textAlign:"center"}}>
+                return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar  src={day.avatar}/>
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <div>{day.name}</div>
                             <div>职位：{day.career}</div>
@@ -130,10 +128,10 @@ const Week = () => {
             dataIndex: "wednesday",
             render: (_, s) => {
                 let day = s.wednesday
-                return (<div style={{textAlign:"center"}}>
+                return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar  src={day.avatar}/>
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <div>{day.name}</div>
                             <div>职位：{day.career}</div>
@@ -148,10 +146,10 @@ const Week = () => {
             dataIndex: "thursday",
             render: (_, s) => {
                 let day = s.thursday
-                return (<div style={{textAlign:"center"}}>
+                return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar  src={day.avatar}/>
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <div>{day.name}</div>
                             <div>职位：{day.career}</div>
@@ -166,10 +164,10 @@ const Week = () => {
             dataIndex: "friday",
             render: (_, s) => {
                 let day = s.friday
-                return (<div style={{textAlign:"center"}}>
+                return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar  src={day.avatar}/>
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <div>{day.name}</div>
                             <div>职位：{day.career}</div>
@@ -184,10 +182,10 @@ const Week = () => {
             dataIndex: "saturday",
             render: (_, s) => {
                 let day = s.saturday
-                return (<div style={{textAlign:"center"}}>
+                return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar  src={day.avatar}/>
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <div>{day.name}</div>
                             <div>职位：{day.career}</div>
@@ -202,10 +200,10 @@ const Week = () => {
             dataIndex: "sunday",
             render: (_, s) => {
                 let day = s.sunday
-                return (<div style={{textAlign:"center"}}>
+                return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar  src={day.avatar}/>
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <div>{day.name}</div>
                             <div>职位：{day.career}</div>
@@ -216,10 +214,13 @@ const Week = () => {
             }
         },
     ]
-    
+
     return (<div>
         <div style={{ float: "left", padding: "10px" }}>
-            <Button>导出本周数据</Button>
+            <Space>
+                <Button>导出本周数据</Button>
+                <Button onClick={()=>{getData({id:id})}}>仅看本人</Button>
+            </Space>
         </div>
         <div style={{ float: "right", padding: "10px" }}>
             <Space>
@@ -227,8 +228,8 @@ const Week = () => {
             </Space>
         </div>
         <Table columns={columns} dataSource={data} pagination={{ position: ["none"] }}
-        loading={loading}
-        bordered />
+            loading={loading}
+            bordered />
     </div>)
 }
 export default Week

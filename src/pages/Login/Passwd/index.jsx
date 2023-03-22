@@ -1,20 +1,32 @@
 import login from "../../../api/common/login";
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
-import { message, Form, Input, Button, Checkbox, Radio, Space } from "antd";
+import { message, Form, Input, Button, Checkbox, Radio, Space, Col, Row } from "antd";
+import { loginByPassword } from "../../../api/common/login";
+import qs from "qs"
 
-const Passwd = () => {
+const Passwd = (props) => {
+    const { getState } = props
     const navigate = useNavigate();
     const onFinish = async (values) => {
-        console.log(values)
-        // const res = await login(values);
-        // let { code, data: { is_administrator, uid }, message: tips } = res;
-        // if (code === 0) {
-        //     message.error(tips);
-        //     return;
+        // let res = await loginByPassword(values);
+        // if (res.code == "success") {
+        //     let us=qs.stringify(res.data)
+        //     localStorage.setItem("user",us);
+        //     localStorage.setItem("is_login", 1);
+        //     localStorage.setItem("is_administrator", values.is_administrator);
+        //     message.success("登录成功!")
+        //     if (values.is_administrator == "0") {
+        //         navigate("/user");
+        //     } else {
+        //         navigate("/admin");
+        //     }
+        // }else if(res.data == "fail"){
+        //     message.error(res.message)
         // }
-        //将用户信息存入本地
+        console.log(values)
+        localStorage.setItem("id", 1)
         localStorage.setItem("is_login", 1);
-        // localStorage.setItem("uid", uid);
         localStorage.setItem("is_administrator", values.is_administrator);
         message.success("登录成功!")
         if (values.is_administrator == "0") {
@@ -22,6 +34,7 @@ const Passwd = () => {
         } else {
             navigate("/admin");
         }
+
     };
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
@@ -29,26 +42,21 @@ const Passwd = () => {
     const goRegister = () => {
         navigate("/register")
     }
+    const onChangeState = () => {
+        getState("note")
+    }
     return (
         <div>
             <Form
                 name="basic"
-                labelCol={{
-                    span: 8,
-                }}
-                wrapperCol={{
-                    span: 13,
-                }}
-                initialValues={{
-                    remember: true,
-                }}
+                layout="horizontal"
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
                 autoComplete="off"
+                labelAlign="left"
             >
                 <Form.Item
-                    label="手机号"
-                    name="username"
+                    name="phone"
                     rules={[
                         {
                             required: true,
@@ -56,10 +64,9 @@ const Passwd = () => {
                         },
                     ]}
                 >
-                    <Input />
+                    <Input placeholder="请输入手机号" prefix={<UserOutlined />} size="large" style={{ borderRadius: 40 }} />
                 </Form.Item>
                 <Form.Item
-                    label="密码"
                     name="password"
                     rules={[
                         {
@@ -68,38 +75,34 @@ const Passwd = () => {
                         },
                     ]}
                 >
-                    <Input.Password />
+                    <Input.Password placeholder="请数输入密码" prefix={<LockOutlined />} size="large" style={{ borderRadius: 40 }} />
                 </Form.Item>
-                <Form.Item name="is_administrator"
+                {/* <Form.Item name="is_administrator"
                     rules={[
                         {
                             required: true,
                             message: '选择身份',
                         },
                     ]}
-                    wrapperCol={{
-                        offset: 4,
-                        span: 16,
-                    }}>
+                    wrapperCol={{ sm: { span: 24, offset: 1 }, xs: { span: 24, offset: 1 } }}
+                >
                     <Radio.Group>
                         <Radio value="0">员工</Radio>
                         <Radio value="1">管理员</Radio>
                     </Radio.Group>
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item
-                    wrapperCol={{
-                        offset: 6,
-                        span: 10,
-                    }}
+                    wrapperCol={{ sm: { span: 24 }, xs: { span: 24 } }}
                 >
-                    <Space>
-                        <Button type="primary" htmlType="submit">
-                            登陆
-                        </Button>
-                        <Button onClick={goRegister}>
-                            注册
-                        </Button>
-                    </Space>
+                    <Button htmlType="submit" size="large" shape="round" style={{ width: "100%" }}>
+                        登陆
+                    </Button>
+                </Form.Item>
+                <Form.Item >
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 40 }}>
+                        <a onClick={onChangeState} style={{ color: "white" }}>使用验证码登陆</a>
+                        <a onClick={goRegister} style={{ color: "white" }}>您还没有账号？</a>
+                    </div>
                 </Form.Item>
             </Form>
         </div>

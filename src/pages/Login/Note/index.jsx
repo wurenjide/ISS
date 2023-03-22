@@ -1,19 +1,40 @@
 import login from "../../../api/common/login";
-import React, { useState } from 'react'
+import { UserOutlined } from "@ant-design/icons"
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
-import { message, Form, Input, Button, Checkbox, Radio, Space,Row,Col } from "antd";
+import { message, Form, Input, Button, Checkbox, Radio, Space, Row, Col } from "antd";
 import { set } from "mobx";
+import { setCode } from "../../../api/common/code"
+import { loginByNote } from "../../../api/common/login"
 
 
 
-const Note = () => {
+const Note = (props) => {
+    const { getState } = props;
     const [state, setState] = useState({
         count: 60,
         liked: true,
     })
     const [form] = Form.useForm();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!state.liked) {
+            downCount()
+        }
+    }, [state.count, state.liked])
+
+    const downCount = () => {
+        let siv = setTimeout(() => {
+            if (state.count - 1 >= 0) {
+                setState({ count: state.count - 1, liked: state.liked })
+                console.log(state.count, state.liked)
+            }
+        }, 1000)
+    }
+
     const onFinish = async (values) => {
+        // let res=await loginByNote(values)
         console.log(values)
         // const res = await login(values);
         // let { code, data: { is_administrator, uid }, message: tips } = res;
@@ -35,35 +56,19 @@ const Note = () => {
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
-    const getCode = (e) => {
-        countDown()
-    }
-    const countDown = () => {
-        let { count } = state;
-        // let siv = setInterval(() => {
-        //     setState({ count: (count--) }, () => {
-        //         if (count <= -1) {
-        //             clearInterval(siv);
-        //             setState({ count: 59, liked: false })
-        //         }
-        //     }
-        //     )
-        // }, 1000
-        // )
-        let siv = setInterval(ll(), 1000)
-        function ll() {
-            if (count <= -1) {
-                clearInterval(siv);
-                setState({ count: 59, liked: false })
-            } else {
-                count--
-                setState({ count: count, liked: true })
-            }
-        }
-    }
 
     const goRegister = () => {
         navigate("/register")
+    }
+    const setC = async () => {
+        // let d={p}
+        // let res=await setCode()
+        console.log(form.getFieldValue("phone"))
+        setState({ count: 60, liked: false })
+    }
+
+    const onChangeState = () => {
+        getState("passwd")
     }
 
     return (
@@ -71,22 +76,12 @@ const Note = () => {
             <Form
                 form={form}
                 name="basic"
-                labelCol={{
-                    span: 8,
-                }}
-                wrapperCol={{
-                    span: 13,
-                }}
-                initialValues={{
-                    remember: true,
-                }}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
+                labelAlign="left"
                 autoComplete="off"
             >
-
                 <Form.Item
-                    label="手机号"
                     name="phone"
                     rules={[
                         {
@@ -95,11 +90,10 @@ const Note = () => {
                         },
                     ]}
                 >
-                    <Input />
+                    <Input placeholder="请输入手机号" size="large" prefix={<UserOutlined />} style={{borderRadius:40}} />
                 </Form.Item>
 
                 <Form.Item
-                    label="验证码"
                     name="note"
                     rules={[
                         {
@@ -108,51 +102,41 @@ const Note = () => {
                         },
                     ]}
                 >
-                    <Row gutter={1}>
-                        <Col span={12}>
-                            <Form.Item
-                                name="note"
-                                noStyle
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Button>获取验证码</Button>
-                        </Col>
-                    </Row>
+                    <Space.Compact block={true} size="large">
+                        <Input placeholder="验证码" style={{borderTopLeftRadius:40,borderBottomLeftRadius:40,textAlign:"center"}}/>
+                        {state.liked ?
+                            <Button onClick={setC} shape="round" style={{ width: "100%" }}>获取验证码</Button>
+                            : (state.count > 0 ?
+                                <Button style={{ width: "100%", backgroundColor: "#D3D3D3" }} disabled>{state.count}</Button> :
+                                <Button onClick={setC} style={{ width: "100%" }}>重新获取验证码</Button>
+                            )}
+                    </Space.Compact>
                 </Form.Item>
-                <Form.Item name="is_administrator"
+                {/* <Form.Item name="is_administrator"
                     rules={[
                         {
                             required: true,
                             message: '选择身份',
                         },
                     ]}
-                    wrapperCol={{
-                        offset: 4,
-                        span: 16,
-                    }}>
+                    wrapperCol={{ sm: { span: 24, offset: 1 }, xs: { span: 24 } }}>
                     <Radio.Group>
                         <Radio value="0">员工</Radio>
                         <Radio value="1">管理员</Radio>
                     </Radio.Group>
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item
-                    wrapperCol={{
-                        offset: 6,
-                        span: 10,
-                    }}
+                    wrapperCol={{ sm: { span: 24 }, xs: { span: 24 } }}
                 >
-                    <Space>
-                        <Button type="primary" htmlType="submit">
-                            登陆
-                        </Button>
-                        <Button onClick={goRegister}>
-                            注册
-                        </Button>
-                    </Space>
-
+                    <Button htmlType="submit" size="large" shape="round" style={{ width: "100%", }}>
+                        登陆
+                    </Button>
+                </Form.Item>
+                <Form.Item >
+                    <div style={{ display: "flex", justifyContent: "space-between" ,marginBottom: 40}}>
+                        <a onClick={onChangeState} style={{ color: "white" }}>使用密码登陆</a>
+                        <a onClick={goRegister} style={{ color: "white" }}>您还没有账号？</a>
+                    </div>
                 </Form.Item>
             </Form>
         </div>

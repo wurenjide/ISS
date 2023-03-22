@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import dayjs from 'dayjs';
 import { UserOutlined } from '@ant-design/icons';
-import { getWeekInfo } from "../../../../api/Admin/ScheduleMan"
+import { getWeekInfo, updateWeekInfo, addWeekInfo, deleteWeekInfo } from "../../../../api/Admin/ScheduleMan"
 import { Table, Radio, Space, DatePicker, Button, Modal, Form, Input, TimePicker, Drawer, Select, Avatar } from 'antd';
 const { RangePicker } = TimePicker;
 // import style from "./index.module.scss";
@@ -13,7 +13,7 @@ const Week = () => {
     const [childrenDrawer, setChildrenDrawer] = useState(false);
     const [data, setData] = useState([])
     const [employee, setEmployee] = useState({ name: "请选择员工" })
-    const [loading,setLoading]=useState(false)
+    const [loading, setLoading] = useState(false)
 
 
 
@@ -102,7 +102,9 @@ const Week = () => {
         onChangeStaff(e)
         setIsModalOpen(true)
     }
-    const onFinish = (values) => {
+    //修改某人的信息
+    const onFinish =async (values) => {
+        let res=await updateWeekInfo(value)
         handleCancel()
         console.log(values);
     };
@@ -136,7 +138,7 @@ const Week = () => {
                 return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar src={day.avatar}  />
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <a onClick={() => { showModal(day) }}>{day.name}</a>
                             <div>职位：{day.career}</div>
@@ -154,7 +156,7 @@ const Week = () => {
                 return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar src={day.avatar}  />
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <a onClick={() => { showModal(day) }}>{day.name}</a>
                             <div>职位：{day.career}</div>
@@ -172,7 +174,7 @@ const Week = () => {
                 return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar src={day.avatar}  />
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <a onClick={() => { showModal(day) }}>{day.name}</a>
                             <div>职位：{day.career}</div>
@@ -190,7 +192,7 @@ const Week = () => {
                 return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar src={day.avatar}  />
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <a onClick={() => { showModal(day) }}>{day.name}</a>
                             <div>职位：{day.career}</div>
@@ -208,7 +210,7 @@ const Week = () => {
                 return (<div style={{ textAlign: "center" }}>
                     <div>{day.start_time}-{day.end_time}</div>
                     <Space size={10}>
-                        <Avatar src={day.avatar}/>
+                        <Avatar src={day.avatar} />
                         <Space direction="vertical" size={1}>
                             <a onClick={() => { showModal(day) }}>{day.name}</a>
                             <div>职位：{day.career}</div>
@@ -245,13 +247,23 @@ const Week = () => {
         console.log(employee)
         onChildrenDrawerClose()
     }
+    const deleteWeek = async (s) => {
+        let res = await deleteWeekInfo(s)
+    }
+    const addWeek=async(s)=>{
+        let res=await addWeekInfo(s)
+    }
+
     return (<div>
         <div style={{ float: "left", padding: "10px" }}>
             <Button>导入</Button>
         </div>
         <div style={{ float: "right", padding: "10px" }}>
             <Space>
+                <Input placeholder='请输入员工姓名' />
+                <Input placeholder='请输入员工职位' />
                 <DatePicker onChange={onChange} picker="week" defaultValue={dayjs().day(1)} />
+                <Button >搜索</Button>
             </Space>
         </div>
         <Modal title="员工信息" open={isModalOpen} onCancel={handleCancel} footer={[null]} destroyOnClose={true}>
@@ -268,23 +280,23 @@ const Week = () => {
                 </Form.Item>
                 <Form.Item>
                     <Space>
-                        <Button>确认</Button>
+                        <Button htmlType="submit">确认</Button>
                         <Button>取消</Button>
-                        <Button>删除</Button>
+                        <Button onClick={() => { deleteWeek(staff) }}>删除</Button>
                     </Space>
                 </Form.Item>
             </Form>
         </Modal>
         <Table columns={columns} dataSource={data} pagination={{ position: ["none"] }}
-        loading={loading}
-        bordered />
+            loading={loading}
+            bordered />
         <Drawer
             title="添加"
             closable={false}
             onClose={onClose}
             open={drawer}
             destroyOnClose={true}>
-            <Form>
+            <Form onFinish={addWeek}>
                 <Form.Item label="日期">
                     <DatePicker />
                 </Form.Item>

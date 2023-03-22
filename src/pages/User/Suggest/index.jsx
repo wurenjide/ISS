@@ -1,11 +1,19 @@
-import { Button, Form, Input, InputNumber, Select, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker } from 'antd';
+import { Button, Form, Input, InputNumber, Select, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, message } from 'antd';
 import React, { useState } from 'react';
+import { getSuggestInfo, addSuggestInfo, deleteSuggestInfo } from "../../../api/User/Suggest"
+import qs from "qs"
+import dayjs from 'dayjs';
+
 const Suggest = () => {
 
 
     const [open, setOpen] = useState(false);
     const [su, setSu] = useState({});
     const [title, setTitle] = useState("");
+    const [data, setData] = useState([]);
+    const [user, setUser] = useState(qs.parse(localStorage.getItem("user")));
+
+
 
     const columns = [
         {
@@ -14,11 +22,11 @@ const Suggest = () => {
         },
         {
             title: "建议内容",
-            dataIndex: "suggest",
+            dataIndex: "content",
         },
         {
             title: "提交时间",
-            dataIndex: "uptime"
+            dataIndex: "subTime"
         },
         {
             title: "操作",
@@ -33,14 +41,16 @@ const Suggest = () => {
             </>
         },
     ]
-    const data = []
-    for (let i = 0; i < 100; i++) {
-        data.push({
-            id: i,
-            suggest: "aaa" + i,
-            uptime: "2023-2-13"
-        })
+
+    const getData = async () => {
+
+        let res = await getSuggestInfo({ id: user.id})
+        setData(res.data)
     }
+    useState(() => {
+        getData()
+    })
+
     const showDrawer = (s, title) => {
         console.log(s, title)
         setSu(s)
@@ -50,22 +60,42 @@ const Suggest = () => {
     const onClose = () => {
         setOpen(false)
     }
-    const Delete = (s) => {
+    const Delete = async (s) => {
+        let res = await deleteSuggestInfo(s);
         console.log(s)
+    }
+    const onFinish = async (value) => {
+        let data = {
+            id: value.id,
+            content: value.content,
+            submitTime: dayjs().format("YYYY-MM-DD hh:mm:ss")
+        }
+
+        let res = await addSuggestInfo(data)
+        if (res.code == "success") {
+            message.success(res.message)
+            getData()
+            setOpen(false)
+        } else if (res.code == "fail") {
+            message.error(res.message)
+        }
+
     }
     return <div>
         <Button onClick={() => { showDrawer({}, "新增") }}>新增</Button>
         <Table columns={columns} dataSource={data} rowKey={data => data.id}
             pagination={{ position: ["bottomCenter"], showSizeChanger: false, defaultPageSize: 6 }} />
         <Modal open={open} onCancel={onClose} onClose={onClose} title={title}
-            okText='确认'
-            cancelText='取消'
+            footer={null}
         >
-            <Form>
-                <Form.Item label="建议内容">
-                    <Input.TextArea value={su.suggest} />
+            <Form onFinish={onFinish}>
+                <Form.Item label="用户id" name="id" initialValue={su.employeeId} hidden>
+                    <Input />
                 </Form.Item>
-                <Form.Item label="是否匿名">
+                <Form.Item label="建议内容" name="content" initialValue={su.content}>
+                    <Input.TextArea />
+                </Form.Item>
+                {/* <Form.Item label="是否匿名">
                     <Select options={[
                         {
                             label: "匿名",
@@ -73,9 +103,12 @@ const Suggest = () => {
                         },
                         {
                             label: "实名",
-                            value: "0",
+                            value: "1",
                         },
                     ]} />
+                </Form.Item> */}
+                <Form.Item>
+                    <Button type="primary" htmlType="submit">确认</Button>
                 </Form.Item>
             </Form>
         </Modal>

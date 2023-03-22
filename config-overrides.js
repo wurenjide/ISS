@@ -1,5 +1,5 @@
 const path = require('path')
-const { override, addDecoratorsLegacy } = require('customize-cra')
+const { override, addDecoratorsLegacy, overrideDevServer, addLessLoader, watchAll, adjustStyleLoaders, } = require('customize-cra')
 
 function resolve(dir) {
     return path.join(__dirname, dir)
@@ -13,7 +13,22 @@ const customize = () => (config, env) => {
             'react-dom': 'ReactDOM'
         }
     }
-
     return config
 };
-module.exports = override(addDecoratorsLegacy(), customize())
+
+
+module.exports = {
+    webpack: override(addDecoratorsLegacy(), customize()),
+    devServer: overrideDevServer((config) => {
+        return {
+            ...config,
+            proxy: {
+                "/path1": {
+                    target: process.env.REACT_APP_API_URL,
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/path1/, ''),
+                }
+            },
+        }
+    },watchAll()),
+}

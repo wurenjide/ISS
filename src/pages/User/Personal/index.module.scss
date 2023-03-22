@@ -1,0 +1,19 @@
+// .menuitem {
+//     background-color: white;
+//     color: red;
+//     &:hover {
+//         background-color: white;
+//         color: #1677ff;
+//         border-right-style: 5px solid #1677ff;
+//     }
+// }
+.menuitem {
+    background-color: white;
+    color: #1677ff;
+    border-right: 5px solid #1677ff;
+    border-radius: 0px
+}
+
+// .menuitem :hover {
+//     background-color: white;
+// }

@@ -8,3 +8,6 @@ export function updateWeekInfo(data){
 export function deleteWeekInfo(data){
     return request({ method: "post", url: "deleteWeekInfo", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
 }
+export function addWeekInfo(data){
+    return request({ method: "post", url: "addWeekInfo", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+}

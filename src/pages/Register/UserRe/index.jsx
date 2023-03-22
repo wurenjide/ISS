@@ -1,15 +1,38 @@
 import register from "../../../api/common/register";
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { message, Form, Input, Button, DatePicker, Checkbox, Radio, Space, Select, InputNumber, Col, Row, Steps, } from "antd";
+import { setCode } from "../../../api/common/code";
 
 const UserRe = () => {
+
+
+    const [state, setState] = useState({
+        count: 60,
+        liked: true,
+    })
 
     const navigate = useNavigate();
     const [current, setCurrent] = useState(0);
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
+    const [form] = Form.useForm();
+
+    useEffect(() => {
+        if (!state.liked) {
+            downCount()
+        }
+    }, [state.count, state.liked])
+
+    const downCount = () => {
+        let siv = setTimeout(() => {
+            if (state.count - 1 >= 0) {
+                setState({ count: state.count - 1, liked: state.liked })
+                console.log(state.count, state.liked)
+            }
+        }, 1000)
+    }
 
     const steps = [
         {
@@ -63,12 +86,20 @@ const UserRe = () => {
     const goLogin = () => {
         navigate("/login")
     }
+
+    const setC = async () => {
+        let res = await setCode()
+        console.log(form.getFieldValue("phone"))
+        setState({ count: 60, liked: false })
+    }
+
     return (
         <div>
             <Steps current={current} items={steps} />
             {current === 0 && (
                 <div style={{ margin: "auto", maxWidth: 300, marginTop: 20 }}>
                     <Form
+                        form={form}
                         onFinish={vePhone}
                         labelCol={{ span: 6, offset: 1 }}>
                         <Form.Item initialValue={phone} label="手机号" name="phone">
@@ -87,7 +118,12 @@ const UserRe = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
-                                    <Button>获取验证码</Button>
+                                    {state.liked ?
+                                        <Button onClick={setC}>获取验证码</Button>
+                                        : (state.count > 0 ?
+                                            <Button disabled>{state.count}</Button> :
+                                            <Button onClick={setC}>重新获取验证码</Button>
+                                        )}
                                 </Col>
                             </Row>
                         </Form.Item>
@@ -102,6 +138,7 @@ const UserRe = () => {
             {current === 1 && (
                 <div style={{ margin: "auto", maxWidth: 300, marginTop: 20 }}>
                     <Form labelAlign="left"
+                        form={form}
                         labelCol={{ span: 6, offset: 1 }}
                         onFinish={gPassword}
                     >

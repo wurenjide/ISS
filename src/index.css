@@ -13,4 +13,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: "Arial", "Microsoft YaHei", "黑体", "宋体", sans-serif;
+  position:absolute;
+  /* background-image:url("./assets/background.jfif"); */
+  /* background-image: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%); */
+  /* background-image: linear-gradient(to top, #a3bded 0%, #6991c7 100%); */
+  background: linear-gradient(to bottom right, #a3bded, #6991c7);
+  height: 100%;
+  background-attachment: fixed;
+  background-size:100% 100%;  
+  background-repeat: no-repeat;
 }

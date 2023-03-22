@@ -1,17 +1,58 @@
 import React, { useState } from 'react'
 import style from "./index.module.scss";
 import dayjs from 'dayjs';
-import { Button, Form, Input, Select, Col, Row, Table, Tag, Pagination, Drawer, Radio, DatePicker, InputNumber } from 'antd';
+import { getRauditInfo, searchRaudit, updateRaudit, deleteRaudit } from "../../../api/Admin/Raudit"
+import { Button, Form, Input, Select, Col, Row, Table, Tag, Pagination, Drawer, Radio, DatePicker, InputNumber, Avatar, message } from 'antd';
 
 const Raudit = () => {
+
+
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [drawer, setDrawer] = useState(false)
+  const [useIn, setUseIn] = useState({});
+  const [title, setTitle] = useState();
+  const [form] = Form.useForm();
+  const [data, setData] = useState();
+
+  const getData = async () => {
+    let res = await getRauditInfo();
+    // let d = []
+    // for (let i = 0; i < 100; i++) {
+    //   d.push({
+    //     key: i,
+    //     uid: i,
+    //     name: `Edrward ${i}`,
+    //     age: 32,
+    //     birthday: '1999-06-02',
+    //     sex: 0,
+    //     email: `aaaaaaa ${i}`,
+    //     phone: `${i}165456131`,
+    //     store: "aaa",
+    //     career: "AAAA",
+    //     state: i % 3,
+    //   });
+    // }
+    setData(res.data.users)
+  }
+
+  useState(() => {
+    getData();
+  })
+
   const columns = [
     {
-      title: '员工号',
-      dataIndex: 'uid',
+      title: '头像',
+      dataIndex: 'avatar',
+      render:(_,s)=><Avatar src={s.avatar}/>
     },
     {
       title: '姓名',
       dataIndex: 'name',
+    },
+    {
+      title: '职位',
+      dataIndex: 'career',
     },
     {
       title: '年龄',
@@ -39,17 +80,17 @@ const Raudit = () => {
     },
     {
       title: "审核状态",
-      dataIndex: "state",
-      render: (state) => {
+      dataIndex: "pass",
+      render: (pass) => {
         let color = "warning"
         let tag = "错误"
-        if (state == 0) {
+        if (pass == 1) {
           color = "processing"
           tag = "未审批"
-        } else if (state == 1) {
+        } else if (pass == 2) {
           color = "success"
           tag = "同意"
-        } else if (state == 2) {
+        } else if (pass == 0) {
           color = "error"
           tag = "不同意"
         }
@@ -67,52 +108,29 @@ const Raudit = () => {
       fixed: 'right',
       width: 100,
       render: (s) => {
-        console.log(s)
-        if (s.state == 0) {
+        if (s.pass == 1) {
           return (<Button onClick={() => showDrawer("审批", s)}>审批</Button>)
-        } else if (s.state == 1 || s.state == 2) {
+        } else if (s.pass == 0 || s.pass == 2) {
           return (<Button onClick={() => showDrawer("修改", s)}>修改</Button>)
         }
       }
     },
   ];
-  const data = [];
-
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      key: i,
-      uid: i,
-      name: `Edrward ${i}`,
-      age: 32,
-      birthday: '1999-06-02',
-      sex: 0,
-      email: `aaaaaaa ${i}`,
-      phone: `${i}165456131`,
-      store: "aaa",
-      career: "AAAA",
-      state: i % 3,
-    });
-  }
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [drawer, setDrawer] = useState(false)
-  const [useIn, setUseIn] = useState({});
-  const [title, setTitle] = useState();
-  const [form] = Form.useForm();
 
   const pageChange = (page, pageSize) => {//页码改变时
-    console.log(page, pageSize)
   };
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
+    let res = await updateRaudit(values);
+    if(res.code=="success"){
+      setDrawer(false)
+      message.success("修改成功")
+      getData()
+    }
     console.log(values);
   };
   const onReset = () => {
     form.resetFields();
-  };
-
-  const onSelectChange = (newSelectedRowKeys) => {
-    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
   };
 
 
@@ -125,13 +143,16 @@ const Raudit = () => {
     setDrawer(false);
     setUseIn({})
   };
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
+
+  const deleteRa = async (value) => {
+    let res = await deleteRaudit(value)
+  }
+  const onSearch=async(value)=>{
+    getData(form)
+  }
 
   return <div>
-    <Form form={form} name="control-hooks" onFinish={onFinish}>
+    <Form form={form} name="control-hooks" onFinish={onSearch}>
       <Row gutter={16}>
         <Col span={4}>
           <Form.Item name="name" label="姓名">
@@ -175,32 +196,33 @@ const Raudit = () => {
     </Form>
     <Table columns={columns} dataSource={data} total={1000}
       pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange }}
+      rowKey={r=>r.id}
     />
     <Drawer title={title} open={drawer} onClose={onCloseDrawer} destroyOnClose>
-      <Form>
+      <Form onFinish={onFinish}>
         <Form.Item name="id" initialValue={useIn.id} hidden>
           <Input />
         </Form.Item>
-        <Form.Item label="审核状态" name="state" initialValue={useIn.state}>
+        <Form.Item label="审核状态" name="pass" initialValue={useIn.pass}>
           <Select
             options={[
               {
-                value: 0,
+                value: 1,
                 label: '未审批',
                 disabled: true
               },
               {
-                value: 1,
+                value: 2,
                 label: '同意',
               },
               {
-                value: 2,
+                value: 0,
                 label: '不同意',
               },
             ]} />
         </Form.Item>
         <Form.Item>
-          <Button>确认</Button>
+          <Button type="primary" htmlType="submit">确认</Button>
         </Form.Item>
       </Form>
     </Drawer>

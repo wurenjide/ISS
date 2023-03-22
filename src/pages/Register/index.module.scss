@@ -3,9 +3,18 @@
     border-radius: 5px;
     padding: 40px 30px 10px 30px;
     text-align: center;
-    margin:0 auto 60;
+    margin:0 auto;
     transform: translateY(50px);
+    margin-bottom: 50px;
     width: 500px;
+}
+.register-layout-phone{
+    box-shadow: 0 1px #5670A4 inset, 0 0 10px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    padding: 40px 30px 10px 30px;
     text-align: center;
     margin:0 auto;
+    transform: translateY(50px);
+    width: 300px;
+    background-color: rgb(255, 255, 255,0.4);
 }

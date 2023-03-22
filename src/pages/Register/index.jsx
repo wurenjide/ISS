@@ -7,18 +7,30 @@ import UserRe from "./UserRe";
 import AdminRe from "./AdminRe";
 
 const Register = () => {
+    const [styleDe,setStyleDe]=useState();
     const [registerStyle,setRegisterStyle]=useState("passwd");
     const onChange=(value)=>{
         console.log(value.target.value)
         setRegisterStyle(value.target.value)
     }
-    return <div className={style["register-layout"]}>
-        <h1>注册</h1>
-        <Radio.Group onChange={onChange} defaultValue="passwd" style={{margin:"10px"}}>
-            <Radio.Button value="passwd">员工注册</Radio.Button>
-            <Radio.Button value="note">管理员注册</Radio.Button>
+
+
+    useState(() => {
+        if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+            setStyleDe("register-layout-phone")
+        } else {
+            setStyleDe("register-layout")
+        }
+    })
+
+    return <div className={style[styleDe]}>
+        <h1 style={{color:"white"}}>LOGO</h1>
+        {/* <Radio.Group onChange={onChange} defaultValue="passwd" style={{margin:"10px"}}>
+            <Radio.Button value="passwd">注册草稿1</Radio.Button>
+            <Radio.Button value="note">注册草稿2</Radio.Button>
         </Radio.Group>
-        {registerStyle=="passwd"?<UserRe/>:<AdminRe/>}
+        {registerStyle=="passwd"?<UserRe/>:<AdminRe/>} */}
+        <AdminRe/>
         {/* {React.createElement(registerStyle=="passwd"?UserRe:AdminRe)} */}
     </div>
 }

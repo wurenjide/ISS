@@ -1,39 +1,42 @@
 import React, { useState } from 'react'
 import style from "./index.module.scss";
 import { Button, Form, Input, Select, Col, Row, Table, Tag, Drawer, Space, Pagination, message } from 'antd';
+import { getLeaveInfor, updateLeave } from "../../../api/Admin/LeaveMan"
 const { TextArea } = Input;
 
 const LeaveMan = () => {
 
 
+
+  const [data, setData] = useState([])
+  const [open, setOpen] = useState(false);
+  const [drawer, setDrawer] = useState({});
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [form] = Form.useForm();
   const columns = [
-    {
-      title: '员工号',
-      dataIndex: 'uid',
-    },
     {
       title: '员工名称',
       dataIndex: 'name',
     },
     {
       title: '职位',
-      dataIndex: 'position',
+      dataIndex: 'career',
     },
     {
       title: '开始时间',
-      dataIndex: 'start_time',
+      dataIndex: 'startTime',
     },
     {
       title: '结束时间',
-      dataIndex: 'end_time',
+      dataIndex: 'endTime',
     },
     {
       title: '创建时间',
-      dataIndex: 'create_time',
+      dataIndex: 'createTime',
     },
     {
       title: '更新时间',
-      dataIndex: 'update_time',
+      dataIndex: 'updateTime',
     },
     {
       title: '请假理由',
@@ -41,19 +44,19 @@ const LeaveMan = () => {
     },
     {
       title: "请假状态",
-      dataIndex: "state",
-      render: (state) => {
+      dataIndex: "status",
+      render: (status) => {
         let color = "warning"
         let tag = "错误"
-        if (state == 0) {
+        if (status == "审核中") {
           color = "processing"
-          tag = "未审批"
-        } else if (state == 1) {
+          tag = "审核中"
+        } else if (status == "同意") {
           color = "success"
           tag = "同意"
-        } else if (state == 2) {
+        } else if (status == "拒绝") {
           color = "error"
-          tag = "不同意"
+          tag = "拒绝"
         }
         return (
           <div>
@@ -69,31 +72,36 @@ const LeaveMan = () => {
       fixed: 'right',
       width: 100,
       render: (s) => {
-        if (s.state == 0) {
-          return (<Button key={s.uid} onClick={() => showDrawer(s)}>审批</Button>)
-        } else if (s.state == 1 || s.state == 2) {
-          return (<Button key={s.uid} onClick={() => showDrawer(s)}>修改</Button>)
+        if (s.status == "审核中") {
+          return (<Button key={s.id} onClick={() => showDrawer(s)}>审批</Button>)
+        } else if (s.status == "同意" || s.status == "拒绝") {
+          return (<Button key={s.id} onClick={() => showDrawer(s)}>修改</Button>)
         }
       }
     },
   ];
-  const data = [];
-
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      key: i,
-      uid: i,
-      name: `Edrward ${i}`,
-      position: "aaaaaa",
-      reason: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-      opinion: "",
-      state: i % 3,
-    });
+  
+  const getData = async () => {
+    let res=await getLeaveInfor()
+    // let d = []
+    // for (let i = 0; i < 100; i++) {
+    //   d.push({
+    //     id: i,
+    //     name: `Edrward ${i}`,
+    //     career: "aaaaaa",
+    //     reason: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    //     opinion: "",
+    //     status: i % 3,
+    //   });
+    // }
+    setData(res.data.writtens)
+    // console.log(res)
+    // message(res.message)
   }
-  const [open, setOpen] = useState(false);
-  const [drawer, setDrawer] = useState({});
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [form] = Form.useForm();
+
+  useState(() => {
+    getData()
+  })
 
   const pageChange = (page, pageSize) => {//页码改变时
     console.log(page, pageSize)
@@ -126,10 +134,19 @@ const LeaveMan = () => {
   };
 
   const onSearch = (values) => {
-    console.log('Success:', values);
+    getData(values)
   };
-  const onFinish = (values) => {
-    if (values.state == 0) {
+  const onFinish = async (values) => {
+    let data={
+      id:values.id,
+      status:values.status,
+    }
+    let res = await updateLeave(data);
+    if (res.code == "success") {
+      message.success("修改成功")
+      getData()
+    }
+    if (values.status == "审批中") {
       message.info("该请假条还未审批！")
     }
     console.log('Success:', values);
@@ -189,9 +206,10 @@ const LeaveMan = () => {
     </Form>
     <Table rowSelection={rowSelection} columns={columns} dataSource={data} total={1000}
       pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange }}
+      rowKey={r => r.id}
     />
     <Drawer
-      title={drawer.state == 0 ? "审核" : "修改"}
+      title={drawer.status == 0 ? "审核" : "修改"}
       placement="right"
       // size={"d"}
       onClose={onClose}
@@ -203,31 +221,37 @@ const LeaveMan = () => {
         onFinishFailed={onFinishFailed}
         autoComplete="off"
       >
+       <Form.Item initialValue={drawer.employeeId} name="employeeId" label="用户id" hidden>
+          <Input disabled />
+        </Form.Item>
+        <Form.Item initialValue={drawer.id} name="id" label="假条id" hidden>
+          <Input disabled />
+        </Form.Item>
         <Form.Item initialValue={drawer.name} name="name" label="员工名称">
           <Input disabled />
         </Form.Item>
-        <Form.Item initialValue={drawer.position} name="position" label="员工职位">
+        <Form.Item initialValue={drawer.career} name="career" label="员工职位">
           <Input disabled />
         </Form.Item>
         <Form.Item initialValue={drawer.reason} name="reason" label="请假理由">
           <TextArea disabled />
         </Form.Item>
-        <Form.Item initialValue={drawer.state} name="state" label="请假状态">
+        <Form.Item initialValue={drawer.status} name="status" label="请假状态">
           <Select
             // onChange={handleChange}
             options={[
               {
-                value: 0,
-                label: '未审批',
+                value: "审批中",
+                label: '审批中',
                 disabled: true
               },
               {
-                value: 1,
+                value: '同意',
                 label: '同意',
               },
               {
-                value: 2,
-                label: '不同意',
+                value: '拒绝',
+                label: '拒绝',
               },
             ]}
           />

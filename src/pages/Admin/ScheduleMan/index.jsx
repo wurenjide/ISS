@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Table, Radio, Space, Button, Drawer, TimePicker, Form, Select, DatePicker, Divider,Badge } from 'antd';
+import { Table, Radio, Space, Button, Drawer, TimePicker, Form, Select, DatePicker, Divider, Badge, Input,Avatar } from 'antd';
 import Week from './Week';
 import Month from './Month';
 import Day from './Day';
@@ -9,7 +9,7 @@ const ScheduleMan = () => {
   const [drawer, setDrawer] = useState(false);
   const [childrenDrawer, setChildrenDrawer] = useState(false);
   const [employee, setEmployee] = useState({ name: "请选择员工" })
-  const [drawer2,setDrawer2]=useState(false)
+  const [drawer2, setDrawer2] = useState(false)
   const showDrawer = () => {
     setDrawer(true);
   };
@@ -36,7 +36,7 @@ const ScheduleMan = () => {
   const addStaff = () => {
     showDrawer()
   }
-  const showDrawer2=()=>{
+  const showDrawer2 = () => {
     setDrawer2(true)
   }
   return (<div>
@@ -52,7 +52,7 @@ const ScheduleMan = () => {
         <Badge count={5}>
           <Button onClick={showDrawer2}>开放班次</Button>
         </Badge>
-      <Button onClick={addStaff}>添加</Button>
+        <Button onClick={addStaff}>添加</Button>
       </Space>
     </div>
     <Drawer
@@ -90,7 +90,7 @@ const ScheduleMan = () => {
           </Space>
         </Form.Item>
       </Form>
-      <Drawer title="空闲员工" closable={false} onClose={onChildrenDrawerClose} open={childrenDrawer}>
+      <Drawer title="空闲员工" closable={false} onClose={onChildrenDrawerClose} open={childrenDrawer} >
         <Space>
           <div>
             姓名：aa
@@ -100,28 +100,45 @@ const ScheduleMan = () => {
           <Button onClick={() => { changeEmployee() }}>选择</Button>
         </Space>
         <Divider />
-        <Space>
+        {/* <Space size="large"> */}
           <div>
-            姓名：aa
-            <div>当日工作时间段：10:30-11:30</div>
-            <div>当日工作时长：1小时</div>
+            
+            <Select
+              mode="multiple"
+              style={{ width: "150px" }}
+              allowClear
+              placeholder="请选择职业"
+              options={[{ label: "aa", value: "aa" }, { label: "aa2", value: "aa2" }]}
+            />
           </div>
           <Button onClick={() => { changeEmployee() }}>选择</Button>
-        </Space>
+        {/* </Space> */}
         <Divider />
       </Drawer>
     </Drawer>
     <Drawer open={drawer2} onClose={onClose} title="未处理的开放班次">
       <Form>
         <Form.Item label="日期">
-          <DatePicker/>
+          <DatePicker />
         </Form.Item>
         <Form.Item label="时间段">
-          <TimePicker/>
+          <TimePicker.RangePicker />
+        </Form.Item>
+        <Form.Item label="所需人数">
+          <Input disabled />
+        </Form.Item>
+        <Form.Item label="职位选择">
+          <Select
+            mode="multiple"
+            style={{ width: "150px" }}
+            allowClear
+            placeholder="请选择职业"
+            options={[{ label: "aa", value: "aa" }, { label: "aa2", value: "aa2" }]}
+          />
         </Form.Item>
       </Form>
     </Drawer>
-    {React.createElement(scheduleS=='w2'?Week2:(scheduleS == "w" ? Week : (scheduleS == "m" ? Month : Day)) )}
+    {React.createElement(scheduleS == 'w2' ? Week2 : (scheduleS == "w" ? Week : (scheduleS == "m" ? Month : Day)))}
   </div>)
 }
 export default ScheduleMan
