@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import style from "./index.module.scss";
 import dayjs from 'dayjs';
+import qs from "qs"
 import { getRauditInfo, searchRaudit, updateRaudit, deleteRaudit } from "../../../api/Admin/Raudit"
 import { Button, Form, Input, Select, Col, Row, Table, Tag, Pagination, Drawer, Radio, DatePicker, InputNumber, Avatar, message } from 'antd';
 
@@ -14,37 +15,44 @@ const Raudit = () => {
   const [title, setTitle] = useState();
   const [form] = Form.useForm();
   const [data, setData] = useState();
+  const [page, setPage] = useState(1);
+  const [user, setUser] = useState({});
+  const [total, setTotal] = useState(0);
+  const [loading,setLoading]=useState(false)
 
-  const getData = async () => {
-    let res = await getRauditInfo();
-    // let d = []
-    // for (let i = 0; i < 100; i++) {
-    //   d.push({
-    //     key: i,
-    //     uid: i,
-    //     name: `Edrward ${i}`,
-    //     age: 32,
-    //     birthday: '1999-06-02',
-    //     sex: 0,
-    //     email: `aaaaaaa ${i}`,
-    //     phone: `${i}165456131`,
-    //     store: "aaa",
-    //     career: "AAAA",
-    //     state: i % 3,
-    //   });
+  const getData = async (values) => {
+    // let data={
+    //   name:values.name?values.name:"",
+    //   status:values.status?values.status:"",
+    //   page:page,
+    //   storeId:storeId,
     // }
-    setData(res.data.users)
+    setLoading(true)
+    values.page = page
+    values.storeId = user.storeId
+    values.id=user.id
+    let res = await getRauditInfo(data);
+    if (res.code == "success") {
+      setData(res.data.users)
+      setTotal(res.data.total)
+    }
+    setLoading(false)
   }
 
   useState(() => {
-    getData();
+    let user = qs.parse(localStorage.getItem("user"))
+    setUser(user)
+    getData(form.getFieldValue());
   })
+  useEffect(() => {
+    getData(form.getFieldValue())
+  }, [page]);
 
   const columns = [
     {
       title: '头像',
       dataIndex: 'avatar',
-      render:(_,s)=><Avatar src={s.avatar}/>
+      render: (_, s) => <Avatar src={s.avatar} />
     },
     {
       title: '姓名',
@@ -118,14 +126,15 @@ const Raudit = () => {
   ];
 
   const pageChange = (page, pageSize) => {//页码改变时
+    setPage(page)
   };
 
   const onFinish = async (values) => {
     let res = await updateRaudit(values);
-    if(res.code=="success"){
+    if (res.code == "success") {
       setDrawer(false)
       message.success("修改成功")
-      getData()
+      getData(form)
     }
     console.log(values);
   };
@@ -147,7 +156,7 @@ const Raudit = () => {
   const deleteRa = async (value) => {
     let res = await deleteRaudit(value)
   }
-  const onSearch=async(value)=>{
+  const onSearch = async (value) => {
     getData(form)
   }
 
@@ -160,7 +169,7 @@ const Raudit = () => {
           </Form.Item>
         </Col>
         <Col span={4}>
-          <Form.Item name="role" label="状态">
+          <Form.Item name="status" label="状态">
             <Select style={{ width: 120 }}
               options={[
                 {
@@ -194,9 +203,9 @@ const Raudit = () => {
         {/* <Col span={4} ><Button style={{ float: "right" }}>新增</Button></Col> */}
       </Row>
     </Form>
-    <Table columns={columns} dataSource={data} total={1000}
-      pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange }}
-      rowKey={r=>r.id}
+    <Table columns={columns} dataSource={data} total={1000} loading={loading}
+      pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange, page: page }}
+      rowKey={r => r.id}
     />
     <Drawer title={title} open={drawer} onClose={onCloseDrawer} destroyOnClose>
       <Form onFinish={onFinish}>

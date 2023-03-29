@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import style from "./index.module.scss";
 import dayjs from 'dayjs';
+import qs from "qs"
 import { EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
 import { getStaffInfo, deleteStaffInfo, updateStaffInfo, searchStaffInfo, addStaffInfo } from "../../../api/Admin/Staff"
-import { Button, Form, Input, InputNumber, Popconfirm, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Avatar } from 'antd';
+import { Button, Form, Input, InputNumber, Popconfirm, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Avatar, message } from 'antd';
 
 const Staff = () => {
 
@@ -13,20 +14,30 @@ const Staff = () => {
   const [useIn, setUseIn] = useState({});
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [user, setUser] = useState({})
 
-  const getData = async () => {
+  const getData = async (values) => {
     setLoading(true)
-    let res = await getStaffInfo()
-    console.log(res)
-    if (res.code != "") {
+    values.id = user.id;
+    values.storeId = user.storeId;
+    values.page=page
+    let res = await getStaffInfo(values)
+    if (res.code == "success") {
       setData(res.data.employee)
+      setTotal(res.data.total)
     }
     setLoading(false)
   }
   useState(() => {
+    let user = qs.parse(localStorage.getItem("user"))
+    setUser(user)
     getData()
   }, [])
-
+  useEffect(() => {
+    getData(form.getFieldValue())
+  }, [page]);
 
   const showDrawer = (title, s) => {
     setUseIn(s)
@@ -42,8 +53,18 @@ const Staff = () => {
   const onFinish = async (values) => {
     if (title == "修改") {
       let res = await updateStaffInfo(values)
+      if (res.code == "success") {
+        message.success(res.message)
+        getData(form.getFieldValue())
+        setDrawer(false)
+      }
     } else if (title == "新增") {
       let res = await addStaffInfo(values)
+      if (res.code == "success") {
+        message.success(res.message)
+        getData(form.getFieldValue())
+        setDrawer(false)
+      }
     } else {
       alert("操作失败，请刷新后重试")
     }
@@ -53,8 +74,11 @@ const Staff = () => {
   };
 
   const deleteStaff = async (s) => {
-    let res=await deleteStaffInfo(s);
-
+    let res = await deleteStaffInfo(s);
+    if (res.code == "success") {
+      message.success(res.message)
+      getData(form.getFieldValue())
+    }
   }
 
   const columns = [
@@ -122,6 +146,11 @@ const Staff = () => {
       </div>,
     },
   ];
+
+  const pageChange = (page, pageSize) => {
+    setPage(page)
+  }
+
   return <div>
     <Form form={form} name="control-hooks" onFinish={onFinish}>
       <Row gutter={16}>
@@ -151,7 +180,7 @@ const Staff = () => {
     </Form>
     <Table columns={columns} dataSource={data}
       rowKey={r => r.id}
-      pagination={{ position: ["bottomCenter"], showSizeChanger: false }}
+      pagination={{ position: ["bottomCenter"], showSizeChanger: false, pageChange: pageChange, page: page, total: total }}
       loading={loading}
     />
     <Drawer title={title} open={drawer} onClose={onCloseDrawer} destroyOnClose={true}>

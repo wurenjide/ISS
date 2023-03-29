@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import style from "./index.module.scss";
 import { Button, Form, Input, Select, Col, Row, Table, Tag, Drawer, Space, Pagination, message } from 'antd';
 import { getLeaveInfor, updateLeave } from "../../../api/Admin/LeaveMan"
@@ -13,6 +13,10 @@ const LeaveMan = () => {
   const [drawer, setDrawer] = useState({});
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [user,setUser]=useState({})
   const columns = [
     {
       title: '员工名称',
@@ -81,30 +85,30 @@ const LeaveMan = () => {
     },
   ];
   
-  const getData = async () => {
-    let res=await getLeaveInfor()
-    // let d = []
-    // for (let i = 0; i < 100; i++) {
-    //   d.push({
-    //     id: i,
-    //     name: `Edrward ${i}`,
-    //     career: "aaaaaa",
-    //     reason: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    //     opinion: "",
-    //     status: i % 3,
-    //   });
-    // }
-    setData(res.data.writtens)
-    // console.log(res)
-    // message(res.message)
+  const getData = async (values) => {
+    // setLoading(true)
+    values.id=user.id;
+    values.storeId=user.storeId;
+    values.page=page
+    let res=await getLeaveInfor(values)
+    if (res.code == "success") {
+      setData(res.data.writtens)
+      setTotal(res.data.total)
+  }
+    setLoading(false)
   }
 
   useState(() => {
-    getData()
+    let user=localStorage.getItem("user")
+    setUser(user)
+    getData(form.getFieldValue)
   })
+  useEffect(() => {
+    getData(form.getFieldValue)
+  }, [page]);
 
   const pageChange = (page, pageSize) => {//页码改变时
-    console.log(page, pageSize)
+    setPage(page)
   };
 
   const onReset = () => {
@@ -137,19 +141,14 @@ const LeaveMan = () => {
     getData(values)
   };
   const onFinish = async (values) => {
-    let data={
-      id:values.id,
-      status:values.status,
-    }
     let res = await updateLeave(data);
     if (res.code == "success") {
       message.success("修改成功")
-      getData()
+      getData(form.getFieldValue)
     }
     if (values.status == "审批中") {
       message.info("该请假条还未审批！")
     }
-    console.log('Success:', values);
   };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
@@ -205,13 +204,13 @@ const LeaveMan = () => {
       </Row>
     </Form>
     <Table rowSelection={rowSelection} columns={columns} dataSource={data} total={1000}
-      pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange }}
+      pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange,page:page,total:total }}
       rowKey={r => r.id}
+      loading={loading}
     />
     <Drawer
       title={drawer.status == 0 ? "审核" : "修改"}
       placement="right"
-      // size={"d"}
       onClose={onClose}
       open={open}
       destroyOnClose={true}
@@ -221,6 +220,9 @@ const LeaveMan = () => {
         onFinishFailed={onFinishFailed}
         autoComplete="off"
       >
+        <Form.Item initialValue={drawer.storeId} name="storeId" label="门店id" hidden>
+          <Input/>
+        </Form.Item>
        <Form.Item initialValue={drawer.employeeId} name="employeeId" label="用户id" hidden>
           <Input disabled />
         </Form.Item>

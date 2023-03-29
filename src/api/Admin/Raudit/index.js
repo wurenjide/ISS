@@ -1,6 +1,6 @@
 import request from "../../../utils/request";
 export function getRauditInfo(data) {
-    return request({ method: "get", url: "/manage/user/search", params:data, });
+    return request({ method: "post", url: "/manage/user/search", data });
 }
 export function searchRaudit(data) {
     return request({ method: "get", url: "searchRaudit", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });

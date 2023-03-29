@@ -19,6 +19,8 @@ import Rule from "../pages/User/Rule";
 import Register from "../pages/Register";
 import PersonAd from "../pages/Admin/PersonAd";
 import Suggest from "../pages/User/Suggest";
+import Loving from "../pages/User/Loving";
+import LoveMan from "../pages/Admin/LoveMan";
 
 //路由文件
 const routes = [
@@ -55,6 +57,10 @@ const routes = [
             {
                 path:"/user/suggest",
                 element:<Suggest/>,
+            },
+            {
+                path:"/user/loving",
+                element:<Loving/>,
             },
         ],
     },
@@ -99,12 +105,16 @@ const routes = [
             {
                 path:"/admin/personad",
                 element:<PersonAd/>
-            }
+            },
+            {
+                path:"/admin/loveman",
+                element:<LoveMan/>,
+            },
 
         ]
     },
     {
-        path: "/login",
+        path: "/login/*",
         element: <Login />
     },
     {

@@ -1,9 +1,10 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import style from "./index.module.scss";
 import { Statistic, Button, Card, Avatar, InputNumber, Select, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, List } from 'antd';
 import ReactEcharts from 'echarts-for-react';
+import CountUp from 'react-countup';
 const AdminHome = () => {
-  const xA=[]
+  const xA = []
   const x1 = []
   const x2 = []
   const item = [
@@ -20,23 +21,24 @@ const AdminHome = () => {
       title: 'Ant Design Title 4',
     },
   ];
-  useEffect(()=>{
-    var temp=gettime()
-    temp.forEach((t)=>{
+  useEffect(() => {
+    var temp = gettime()
+    temp.forEach((t) => {
       xA.push(t)
     })
-  },[xA])
+  }, [xA])
   for (let i = 0; i < 30; i++) {
     x1.push(i)
     x2.push(i % 3)
   }
+  const formatter = (value) => <CountUp end={value} separator="," />;
   const gettime = () => {
     var myDate = new Date();
     myDate.setDate(myDate.getDate() - 29);
     var dateTemp;
     var flag = 1;
     var day;
-    var data=[];
+    var data = [];
     for (var i = 0; i < 30; i++) {
       if (myDate.getDate() < 10) {
         day = '0' + myDate.getDate().toString()
@@ -56,17 +58,17 @@ const AdminHome = () => {
         show: true
       },
       grid: {
-        
+
         x: 25,
         y: 45,
         x2: 5,
         y2: 25,
         borderWidth: 1,
-        containLabel: false  
+        containLabel: false
       },
       xAxis: {
         data: xA,
-        id:"2",
+        id: "2",
       },
       yAxis: {},
       series: [
@@ -87,41 +89,41 @@ const AdminHome = () => {
         show: true,
         trigger: 'axis',
         formatter: function (params) {
-            var relVal = params[0].name
-            for (var i = 0, l = params.length; i < l; i++) {
-                relVal += '<br/>' + params[i].marker + params[i].value + '人次'
-            }
-            return relVal
+          var relVal = params[0].name
+          for (var i = 0, l = params.length; i < l; i++) {
+            relVal += '<br/>' + params[i].marker + params[i].value + '人次'
+          }
+          return relVal
         }
-    },
+      },
     };
     return option
   }
   return <div>
     <Row gutter={16} style={{ textAlign: "center" }}>
       <Col span={6}>
-        <Card>
-          <Statistic title="在职员工数" value={100} />
+        <Card bodyStyle={{backgroundImage: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 33%)",borderRadius:100}}>
+          <Statistic title="在职员工数" value={100} formatter={formatter}/>
         </Card>
       </Col>
       <Col span={6}>
-        <Card>
-          <Statistic title="待审核员工数" value={100} />
+        <Card bodyStyle={{backgroundImage: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 66%)",borderRadius:100}}>
+          <Statistic title="待审核员工数" value={100} formatter={formatter}/>
         </Card>
       </Col>
       <Col span={6}>
-        <Card>
-          <Statistic title="待审核假条" value={100} />
+        <Card bodyStyle={{backgroundImage: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",borderRadius:100}}>
+          <Statistic title="待审核假条" value={100} formatter={formatter}/>
         </Card>
       </Col>
       <Col span={6} style={{ textAlign: "center" }}>
         <h4>近30天迟到早退人数</h4>
         <Space>
           <Card>
-            <Statistic title="迟到人次" value={30} />
+            <Statistic title="迟到人次" value={30} formatter={formatter}/>
           </Card>
           <Card >
-            <Statistic title="早退人次" value={30} />
+            <Statistic title="早退人次" value={30} formatter={formatter}/>
           </Card>
         </Space>
       </Col>
@@ -129,23 +131,25 @@ const AdminHome = () => {
     <Row gutter={16} style={{ marginTop: 20 }}>
       <Col span={18}>
         <ReactEcharts
-        style={{width: "925px",
-          height: "254px",}}
+          style={{
+            width: "925px",
+            height: "254px",
+          }}
           option={lineOption()}
         ></ReactEcharts>
       </Col>
       <Col span={6}>
         <h3 style={{ textAlign: "center" }}>昨日迟到早退员工</h3>
         <List itemLayout="horizontal"
-        dataSource={item}
-        renderItem={(item) => (
-          <List.Item>
-            <List.Item.Meta
-              avatar={<Avatar />}
-              description="02-13"
-            />
-          </List.Item>
-        )}/>
+          dataSource={item}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar />}
+                description="02-13"
+              />
+            </List.Item>
+          )} />
       </Col>
     </Row>
   </div >

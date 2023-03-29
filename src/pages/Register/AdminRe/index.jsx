@@ -5,6 +5,7 @@ import { message, Form, Input, Button, DatePicker, Checkbox, Radio, Space, Selec
 import { setCode } from "../../../api/common/code";
 import dayjs from "dayjs";
 import { render } from "@testing-library/react";
+import { getAllStore } from "../../../api/User/Store";
 const AdminRe = () => {
 
 
@@ -15,6 +16,25 @@ const AdminRe = () => {
     })
     const [form] = Form.useForm();
     const navigate = useNavigate();
+    const [career, setCareer] = useState();
+    const [store,setStore]=useState({});
+
+    const getData=async()=>{
+        let res=await getAllStore();
+        let data=[]
+        res.data.forEach((r)=>{
+            data.push({
+                label:r.name,
+                value:r.id,
+            })
+        })
+        console.log(data)
+        setStore(data)
+    }
+    useState(()=>{
+        getData()
+    })
+    
 
     useEffect(() => {
         if (!state.liked) {
@@ -81,6 +101,11 @@ const AdminRe = () => {
         setState({ count: 60, liked: false })
     }
 
+    const onChangeS = (e) => {
+        console.log(e)
+        setCareer(e)
+    }
+
     return (
         <div style={{ textAlign: "left" }}>
             {contextHolder}
@@ -134,7 +159,7 @@ const AdminRe = () => {
                         required: true,
                         message: '手机号不能为空!',
                     }, {
-                        pattern: '^[1][3,4,5,7,8][0-9]{9}$',
+                        pattern: '^[1][3,4,5,7,8,9][0-9]{9}$',
                         message: "请输入正确的手机号"
                     }]}
                 >
@@ -202,18 +227,25 @@ const AdminRe = () => {
                         {
                             label: "普通店员",
                             value: "普通店员",
+                        },
+                        {
+                            label: "超级管理员",
+                            value: "超级管理员",
                         }
-                    ]} />
+                    ]}
+                        onChange={onChangeS}
+                    />
                 </Form.Item>
-                <Form.Item label="门店id" name="storeId"
+                {career == "普通店员" ?  <Form.Item label="门店id" name="storeId"
                     rules={[{
 
                         required: true,
                         message: '门店id不能为空!',
                     }]}
                 >
-                    <Input />
-                </Form.Item>
+                    <Select options={store}/>
+                </Form.Item>:<></> }
+
                 <Form.Item
                     label="验证码"
                     name="note"
@@ -237,8 +269,8 @@ const AdminRe = () => {
                         注册
                     </Button>
                 </Form.Item>
-                <div style={{textAlign:"center"}}>
-                <a onClick={goLogin} style={{ color: "white" }}>已有账号现在去登陆？</a>
+                <div style={{ textAlign: "center" }}>
+                    <a onClick={goLogin} style={{ color: "white" }}>已有账号现在去登陆？</a>
                 </div>
             </Form>
         </div>

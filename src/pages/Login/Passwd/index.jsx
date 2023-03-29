@@ -1,6 +1,6 @@
 import login from "../../../api/common/login";
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { message, Form, Input, Button, Checkbox, Radio, Space, Col, Row } from "antd";
 import { loginByPassword } from "../../../api/common/login";
 import qs from "qs"
@@ -8,6 +8,7 @@ import qs from "qs"
 const Passwd = (props) => {
     const { getState } = props
     const navigate = useNavigate();
+    const uselocation = useLocation();
     const onFinish = async (values) => {
         // let res = await loginByPassword(values);
         // if (res.code == "success") {
@@ -16,10 +17,12 @@ const Passwd = (props) => {
         //     localStorage.setItem("is_login", 1);
         //     localStorage.setItem("is_administrator", values.is_administrator);
         //     message.success("登录成功!")
-        //     if (values.is_administrator == "0") {
-        //         navigate("/user");
-        //     } else {
+        //     if (uselocation.pathname.slice(-6) == "/admin") {
+        //         localStorage.setItem("is_administrator", 1); 
         //         navigate("/admin");
+        //     } else {
+        //         localStorage.setItem("is_administrator", 0); 
+        //         navigate("/user");
         //     }
         // }else if(res.data == "fail"){
         //     message.error(res.message)
@@ -27,14 +30,14 @@ const Passwd = (props) => {
         console.log(values)
         localStorage.setItem("id", 1)
         localStorage.setItem("is_login", 1);
-        localStorage.setItem("is_administrator", values.is_administrator);
-        message.success("登录成功!")
-        if (values.is_administrator == "0") {
-            navigate("/user");
-        } else {
+        if (uselocation.pathname.slice(-6) == "/admin") {
+            localStorage.setItem("is_administrator", 1); 
             navigate("/admin");
+        } else {
+            localStorage.setItem("is_administrator", 0); 
+            navigate("/user");
         }
-
+        message.success("登录成功!")
     };
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);

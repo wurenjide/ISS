@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import style from "./index.module.scss";
-import { Button, Form, Input, Select, Col, Row, Table, Tag, DatePicker, Space, Drawer, TimePicker, Avatar } from 'antd';
+import { Button, Form, Input, Select, Col, Row, Table, Tag, DatePicker, Space, Drawer, TimePicker, Avatar, message } from 'antd';
 import { getAttInfo, updateAttInfo, deleteAttInfo } from "../../../api/Admin/AttMan"
 
 
@@ -92,20 +92,31 @@ const AttMan = () => {
     const [form] = Form.useForm();
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(false)
+    const [page, setPage] = useState(1);
+    const [total, setTotal] = useState(0);
+    const [user,setUser]=useState({})
 
 
-    const getData = async () => {
+    const getData = async (values) => {
         setLoading(true)
-        let res = await getAttInfo();
-        console.log(res)
-        if (res.code != "") {
+        values.id=user.id;
+        values.storeId=user.storeId;
+        values.page=page
+        let res = await getAttInfo(values);
+        if (res.code == "success") {
             setData(res.data.employee)
+            setTotal(res.data.total)
         }
         setLoading(false)
     }
     useState(() => {
-        getData()
+        let user=localStorage.getItem("user")
+        setUser(user)
+        getData(form.getFieldValue())
     }, [])
+    useEffect(() => {
+        getData(form.getFieldValue())
+    }, [page])
     const showDrawer = (s) => {
         setUseIn(s)
         setDrawer(true);
@@ -120,6 +131,13 @@ const AttMan = () => {
     }
     const onFinish = async (values) => {
         let res = await updateAttInfo(values)
+        if (res.code == "success") {
+            message.success(res.message)
+            getData(form.getFieldValue())
+        } else {
+            message.error(res.message)
+            getData(form.getFieldValue())
+        }
         console.log(values);
     };
     const onReset = () => {
@@ -128,8 +146,18 @@ const AttMan = () => {
 
     const deleteAtt = async (s) => {
         let res = await deleteAttInfo(s);
+        if (res.code == "success") {
+            message.success(res.message)
+            getData(form)
+        } else {
+            message.error(res.message)
+            getData(form)
+        }
     }
 
+    const pageChange = (page, pageSize) => {
+        setPage(page)
+    }
 
     return <div>
         <Form form={form} name="control-hooks" onFinish={onSearch}>
@@ -176,7 +204,7 @@ const AttMan = () => {
             </Row>
         </Form>
         <Table columns={columns} dataSource={data} rowKey={r => r.id}
-            pagination={{ position: ["bottomCenter"], showSizeChanger: false }}
+            pagination={{ position: ["bottomCenter"], showSizeChanger: false, page: page, total: total, pageChange: pageChange }}
             loading={loading}
         />
         <Drawer title="修改" open={drawer} onClose={onCloseDrawer} destroyOnClose={true}>

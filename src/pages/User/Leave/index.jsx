@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button, Form, Input, Select, Col, Row, Table, Tag, Drawer, Space, Pagination, DatePicker, message } from 'antd';
 import { getLeaveInfo, addLeaveInfo, deleteLeaveInfo, dd } from "../../../api/User/Leave"
 import dayjs from 'dayjs';
@@ -10,7 +10,9 @@ const Leave = () => {
 
     const [data, setData] = useState([])
     const [open, setOpen] = useState(false);
-    const [user,setUser]=useState();
+    const [user, setUser] = useState();
+    const [page, setPage] = useState(1);
+    const [total,setTotal]=useState(0)
     const columns = [
         {
             title: '员工id',
@@ -74,9 +76,15 @@ const Leave = () => {
     ]
 
     const getData = async () => {
-        let res = await getLeaveInfo();
-        setData(res.data)
-        let us=qs.parse(localStorage.getItem("user"))
+        let us = qs.parse(localStorage.getItem("user"))
+
+        let data = {
+            id: us.id,
+            page: page,
+        }
+        // let res = await getLeaveInfo(data);
+        // setData(res.data.writtens)
+        // setTotal(res.total)
         console.log(us)
         setUser(us)
     }
@@ -84,6 +92,9 @@ const Leave = () => {
     useState(() => {
         getData()
     })
+    useEffect(() => {
+        getData()
+    }, [page]);
     const showDrawer = () => {
         setOpen(true);
     };
@@ -91,7 +102,7 @@ const Leave = () => {
         setOpen(false);
     };
     const pageChange = (page, pageSize) => {//页码改变时
-        console.log(page, pageSize)
+        setPage(page)
     };
     const onFinish = async (values) => {
         values.startTime = dayjs(values.startTime).format("YYYY-MM-DD hh:mm:ss")
@@ -119,14 +130,17 @@ const Leave = () => {
             x: "100%",
             y: 420,
         }} total={1000}
-            pagination={false}
+            pagination={{pageChange:pageChange,page:page,total:total}}
             rowKey={r => r.id}
         />
         <Drawer title="请假" placement="right" onClose={onClose} open={open}>
             <Form onFinish={onFinish}>
-                <Form.Item name="id" hidden initialValue="1">
+                {/* <Form.Item name="storeId" initialValue={user.storeId} hidden>
                     <Input />
-                </Form.Item>
+                </Form.Item> */}
+                {/* <Form.Item name="id" hidden initialValue={user.id}>
+                    <Input />
+                </Form.Item> */}
                 <Form.Item label="请假原因" name="reason">
                     <TextArea />
                 </Form.Item>

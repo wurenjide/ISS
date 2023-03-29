@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Form, Input, InputNumber, Select, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Popconfirm  } from 'antd';
+import { Button, Form, Input, InputNumber, Select, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Popconfirm, message  } from 'antd';
 import { searchAttInfo, updateStore,deleteS } from "../../../../api/Admin/Store"
 
 
@@ -49,8 +49,8 @@ const StoreSA = () => {
             </div>,
         },
     ]
-    const getData = async (value) => {
-        let res = await searchAttInfo(form)
+    const getData = async (values) => {
+        let res = await searchAttInfo(values)
         let d = []
         for (let i = 0; i < 100; i++) {
             d.push({
@@ -64,11 +64,11 @@ const StoreSA = () => {
         setData(d)
     }
     useState(() => {
-        getData(form)
+        getData(form.getFieldValue())
     })
     //搜索
     const onSearch = () => {
-        getData(form)
+        getData(form.getFieldValue())
     }
     const onReset = () => {
         form.resetFields();
@@ -83,9 +83,17 @@ const StoreSA = () => {
     }
     const onFinish = async (values) => {
         let res = await updateStore(values);
+        if(res.code=="success"){
+            message.success(res.message)
+            getData(form.getFieldValue())
+        }
     }
     const deleteStore = async (value) => {
         let res = await deleteS(value);
+        if(res.code=="success"){
+            message.success(res.message)
+            getData(form.getFieldValue())
+        }
     }
 
     return <div>
@@ -113,7 +121,7 @@ const StoreSA = () => {
             </Row>
         </Form>
         <Table columns={columns} dataSource={data} rowKey={r => r.id}
-            pagination={{ position: ["bottomCenter"], showSizeChanger: false }}
+            pagination={false}
         />
         <Drawer
             title="修改"

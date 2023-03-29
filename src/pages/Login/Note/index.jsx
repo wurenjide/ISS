@@ -1,7 +1,7 @@
 import login from "../../../api/common/login";
 import { UserOutlined } from "@ant-design/icons"
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { message, Form, Input, Button, Checkbox, Radio, Space, Row, Col } from "antd";
 import { set } from "mobx";
 import { setCode } from "../../../api/common/code"
@@ -11,6 +11,7 @@ import { loginByNote } from "../../../api/common/login"
 
 const Note = (props) => {
     const { getState } = props;
+    const uselocation=useLocation();
     const [state, setState] = useState({
         count: 60,
         liked: true,
@@ -44,13 +45,13 @@ const Note = (props) => {
         // }
         //将用户信息存入本地
         localStorage.setItem("is_login", 1);
-        // localStorage.setItem("uid", uid);
-        localStorage.setItem("is_administrator", values.is_administrator);
         message.success("登录成功!")
-        if (values.is_administrator == "0") {
-            navigate("/user");
-        } else {
+        if (uselocation.pathname.slice(-6) == "/admin") {
+            localStorage.setItem("is_administrator", 1); 
             navigate("/admin");
+        } else {
+            localStorage.setItem("is_administrator", 0); 
+            navigate("/user");
         }
     };
     const onFinishFailed = (errorInfo) => {

@@ -1,7 +1,7 @@
 import request from "../../../utils/request";
 import qs from "qs"
 export function getLeaveInfo(data) {
-    return request({ method: "get", url: "/written/written/getWrittenById/6af5fc21dcca4de6bbbe81ce535dca0f", params: data });
+    return request({ method: "get", url: "/written/written/getWrittenById/"+data.id+"/"+data.page });
 }
 export function addLeaveInfo(data) {
     return request({ method: "post", url: "/written/written/writeWritten", data });
