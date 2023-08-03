@@ -15,12 +15,16 @@ import User from "../pages/User";
 import Personal from "../pages/User/Personal";
 import Schedule from "../pages/User/Schedule";
 import ScheduleRule from "../pages/Admin/ScheduleRule";
-import Rule from "../pages/User/Rule";
+import HistoryIn from "../pages/User/HistoryIn";
 import Register from "../pages/Register";
 import PersonAd from "../pages/Admin/PersonAd";
 import Suggest from "../pages/User/Suggest";
 import Loving from "../pages/User/Loving";
 import LoveMan from "../pages/Admin/LoveMan";
+import NoticeMan from "../pages/Admin/NoticeMan";
+import SuggestMan from "../pages/Admin/Suggest";
+import Community from "../pages/User/Community";
+import CommunityMan from "../pages/Admin/CommunityMan";
 
 //路由文件
 const routes = [
@@ -51,8 +55,8 @@ const routes = [
                 element:<Schedule/>,
             },
             {
-                path:"/user/rule",
-                element:<Rule/>
+                path:"/user/historyIn",
+                element:<HistoryIn/>
             },
             {
                 path:"/user/suggest",
@@ -61,6 +65,10 @@ const routes = [
             {
                 path:"/user/loving",
                 element:<Loving/>,
+            },
+            {
+                path:"/user/community",
+                element:<Community/>
             },
         ],
     },
@@ -110,6 +118,18 @@ const routes = [
                 path:"/admin/loveman",
                 element:<LoveMan/>,
             },
+            {
+                path:"/admin/noticeman",
+                element:<NoticeMan/>
+            },
+            {
+                path:"/admin/suggest",
+                element:<SuggestMan/>,
+            },
+            {
+                path:"/admin/communityman",
+                element:<CommunityMan/>
+            }
 
         ]
     },

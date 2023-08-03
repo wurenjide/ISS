@@ -1,6 +1,6 @@
 import request from "../../../utils/request";
 export function getSuggestInfo(data) {
-    return request({ method: "get", url: "/written/suggest/getSuggestById/"+data.id, params: data });
+    return request({ method: "get", url: "/written/suggest/getSuggestById/"+data.id+"/"+data.page,data });
 }
 export function addSuggestInfo(data) {
     return request({ method: "post", url: "/written/suggest/submitSuggest", data });

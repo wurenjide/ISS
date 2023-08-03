@@ -10,14 +10,12 @@ const Leave = () => {
 
     const [data, setData] = useState([])
     const [open, setOpen] = useState(false);
-    const [user, setUser] = useState();
+    const [user, setUser] = useState({});
     const [page, setPage] = useState(1);
-    const [total,setTotal]=useState(0)
+    const [total, setTotal] = useState(0)
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
     const columns = [
-        {
-            title: '员工id',
-            dataIndex: 'employeeId',
-        },
         {
             title: '开始时间',
             dataIndex: 'startTime',
@@ -46,9 +44,9 @@ const Leave = () => {
                 console.log(status)
                 let color = "warning"
                 let tag = "错误"
-                if (status == "未审批") {
+                if (status == "审核中") {
                     color = "processing"
-                    tag = "未审批"
+                    tag = "审核中"
                 } else if (status == "同意") {
                     color = "success"
                     tag = "同意"
@@ -64,32 +62,31 @@ const Leave = () => {
                     </div>);
             }
         },
-        {
-            title: "操作",
-            key: 'operation',
-            fixed: 'right',
-            width: 100,
-            render: (s) => (
-                <Button onClick={() => { deleteLeave(s) }}>删除</Button>
-            )
-        },
+        // {
+        //     title: "操作",
+        //     key: 'operation',
+        //     fixed: 'right',
+        //     width: 100,
+        //     render: (s) => (
+        //         <Button onClick={() => { deleteLeave(s) }}>删除</Button>
+        //     )
+        // },
     ]
 
     const getData = async () => {
-        let us = qs.parse(localStorage.getItem("user"))
 
         let data = {
-            id: us.id,
+            id: user.id,
             page: page,
         }
-        // let res = await getLeaveInfo(data);
-        // setData(res.data.writtens)
-        // setTotal(res.total)
-        console.log(us)
-        setUser(us)
+        let res = await getLeaveInfo(data);
+        setData(res.data.writtens)
+        setTotal(res.total)
     }
 
     useState(() => {
+        let user = qs.parse(localStorage.getItem("user"))
+        setUser(user)
         getData()
     })
     useEffect(() => {
@@ -109,38 +106,56 @@ const Leave = () => {
         values.endTime = dayjs(values.endTime).format("YYYY-MM-DD hh:mm:ss")
         let res = await addLeaveInfo(values);
         if (res.code == "success") {
-            message.success(res.message)
+            message.success("提交成功")
+            setOpen(false)
+            getData()
         }
     };
 
-    const deleteLeave = async (s) => {
-        let res = await deleteLeaveInfo(s)
-    }
-    const ce = async () => {
-        let d = [1, 2, 3]
-        let res = await dd(d)
+    const deleteLeave = async () => {
+        let res = await deleteLeaveInfo(selectedRowKeys)
+        if(res.code=="success"){
+            message.success("成功")
+            getData()
+        }
+
     }
 
+    const onSelectChange = (newSelectedRowKeys) => {
+        console.log('selectedRowKeys changed: ', newSelectedRowKeys);
+        setSelectedRowKeys(newSelectedRowKeys);
+    };
+    const rowSelection = {
+        selectedRowKeys,
+        onChange: onSelectChange,
+    };
+
+
     return <div>
-        <Button onClick={ce}>测试</Button>
         <div style={{ textAlign: "right", margin: 5 }}>
-            <Button onClick={showDrawer}>请假</Button>
+            <Space>
+                <Button onClick={showDrawer}>请假</Button>
+                <Button onClick={deleteLeave}>删除</Button>
+            </Space>
         </div>
-        <Table columns={columns} dataSource={data} scroll={{
-            x: "100%",
-            y: 420,
-        }} total={1000}
-            pagination={{pageChange:pageChange,page:page,total:total}}
+        <Table columns={columns}
+            dataSource={data}
+            rowSelection={rowSelection}
+            scroll={{
+                x: "100%",
+                y: 420,
+            }} total={1000}
+            pagination={{ onChange: pageChange, page: page, total: total }}
             rowKey={r => r.id}
         />
-        <Drawer title="请假" placement="right" onClose={onClose} open={open}>
+        <Drawer title="请假" placement="right" onClose={onClose} open={open} getContainer={false}>
             <Form onFinish={onFinish}>
-                {/* <Form.Item name="storeId" initialValue={user.storeId} hidden>
+                <Form.Item name="storeId" initialValue={user.storeId} hidden>
                     <Input />
-                </Form.Item> */}
-                {/* <Form.Item name="id" hidden initialValue={user.id}>
+                </Form.Item>
+                <Form.Item name="id" hidden initialValue={user.id}>
                     <Input />
-                </Form.Item> */}
+                </Form.Item>
                 <Form.Item label="请假原因" name="reason">
                     <TextArea />
                 </Form.Item>

@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
+import style from "./index.module.scss"
 import dayjs from 'dayjs';
 import { PlusOutlined, LoadingOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Select, Col, Row, Table, Avatar, Radio, DatePicker, Upload, message } from 'antd';
-
+import { Button, Form, Input, Select, Col, Row, InputNumber, Avatar, Radio, DatePicker, Upload, message } from 'antd';
+import qs from "qs"
+import { getPersonInfo, updataPersonInfo } from "../../../../api/User/Person"
+import upload from "../../../../api/common/upload"
 const getBase64 = (img, callback) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result));
@@ -21,11 +24,14 @@ const beforeUpload = (file) => {
 };
 
 
-const PersonA = () => {
 
+const PersonA = () => {
+    const [user, setUser] = useState(qs.parse(localStorage.getItem("user")));
+    const [use, setUse] = useState(qs.parse(localStorage.getItem("user")));
     const [loading, setLoading] = useState(false);
-    const [imageUrl, setImageUrl] = useState();
-    const handleChange = (info) => {
+    const [imageUrl, setImageUrl] = useState("");
+    const handleChange = async (info) => {
+        console.log(info)
         if (info.file.status === 'uploading') {
             setLoading(true);
             return;
@@ -34,19 +40,38 @@ const PersonA = () => {
             // Get this url from response in real world.
             getBase64(info.file.originFileObj, (url) => {
                 setLoading(false);
-                setImageUrl(url);
+                getData()
             });
         }
     };
+    const getData = async () => {
+
+        let res = await getPersonInfo({ id: user.id });
+        if (res.code == "success") {
+            setUse(res.data)
+            setUser(res.data)
+        }
+    }
+    useState(() => {
+        // getData()
+    })
+    const onFinish = async (value) => {
+        let res = await updataPersonInfo(value)
+        if (res.code == "success") {
+            getData()
+        }
+    }
     const uploadButton = (
-        <div>
-            {loading ? <LoadingOutlined /> : <PlusOutlined />}
-            <div
-                style={{
-                    marginTop: 8,
-                }}
-            >
-                Upload
+        <div className={style["uploadv"]}>
+            <div>
+                {loading ? <LoadingOutlined /> : <PlusOutlined />}
+                <div
+                    style={{
+                        marginTop: 8,
+                    }}
+                >
+                    Upload
+                </div>
             </div>
         </div>
     );
@@ -55,46 +80,104 @@ const PersonA = () => {
     return <div style={{ textAlign: "center", maxWidth: 400, margin: "auto" }}>
         <div style={{ padding: 20 }}>
             <Upload
-                name="avatar"
-                listType="picture-card"
+                name="file"
+                listType="picture-circle"
                 className="avatar-uploader"
                 showUploadList={false}
-                action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                data={{ id: user.id }}
+                action="http://192.168.43.114:10010/personal/upload/avatarUpload"
                 beforeUpload={beforeUpload}
                 onChange={handleChange}
             >
-                {imageUrl ? (<Avatar size={250} />) : (uploadButton)}
-
-
+                {user.avatar ? (<Avatar size={100} src={user.avatar} shape="circle" />) : imageUrl ? (<Avatar size={100} src={imageUrl} shape="circle" />) : (uploadButton)}
             </Upload>
         </div>
-        <Form style={{ textAlign: "left" }}>
-            <Form.Item label="姓名">
+        <Form style={{ textAlign: "left" }} onFinish={onFinish}>
+            <Form.Item initialValue={use.avatar} name="avatar" hidden>
                 <Input />
             </Form.Item>
-            <Form.Item label="年龄">
+            <Form.Item initialValue={use.id} name="id" hidden>
                 <Input />
             </Form.Item>
-            <Form.Item label="性别" name="sex">
+            <Form.Item label="姓名" name="name" initialValue={use.name}
+                rules={[{
+                    required: true,
+                    message: '姓名不能为空!',
+                }]}
+            >
+                <Input />
+            </Form.Item>
+            <Form.Item label="年龄" name="age" initialValue={use.age}
+                rules={[{
+                    required: true,
+                    message: '年龄不能为空!',
+                }]}
+            >
+                <InputNumber />
+            </Form.Item>
+            <Form.Item label="性别" name="sex" initialValue={use.sex}
+                rules={[{
+                    required: true,
+                    message: '性别不能为空!',
+                }]}>
                 <Radio.Group>
-                    <Radio value="0"> 男 </Radio>
-                    <Radio value="1"> 女 </Radio>
+                    <Radio value="男"> 男 </Radio>
+                    <Radio value="女"> 女 </Radio>
                 </Radio.Group>
             </Form.Item>
-            <Form.Item label="生日" name="birthday">
-                <DatePicker initialValues={dayjs('2015-06-06', 'YYYY-MM-DD')} />
+            <Form.Item label="生日" name="birthday" initialValue={dayjs(use.birthday, "YYYY-MM-DD")}
+                rules={[{
+                    required: true,
+                    message: '生日不能为空!',
+                }]}>
+                <DatePicker />
             </Form.Item>
-            <Form.Item label="手机号" name="phone">
+            <Form.Item label="邮箱" name="email" initialValue={use.email}
+                rules={[{
+
+                    required: true,
+                    message: '邮箱不能为空!',
+                }, {
+                    type: "email",
+                    message: "邮箱格式错误!"
+                }]}
+            >
                 <Input />
             </Form.Item>
-            <Form.Item label="邮箱" name="email">
-                <Input />
+            <Form.Item label="手机号" name="phone" initialValue={use.phone}
+                rules={[{
+                    required: true,
+                    message: '手机号不能为空!',
+                }, {
+                    pattern: '^[1][3,4,5,7,8,9][0-9]{9}$',
+                    message: "请输入正确的手机号"
+                }]}
+            >
+                <Input disabled />
             </Form.Item>
-            <Form.Item label="门店id">
-                12
+            <Form.Item label="身份字段" name="career" initialValue={use.career}
+                rules={[{
+
+                    required: true,
+                    message: '身份字段还未选择!',
+                }]}
+            >
+                <Select disabled options={[
+                    {
+                        label: "管理员",
+                        value: "管理员",
+                    },
+                    {
+                        label: "普通店员",
+                        value: "普通店员",
+                    }
+                ]} />
+            </Form.Item>
+            <Form.Item label="门店id" name="storeId" initialValue={use.storeId}>
+                <Input disabled />
             </Form.Item>
             <Form.Item>
-                <Button>保存修改</Button>
+                <Button type="primary" htmlType="submit">保存修改</Button>
             </Form.Item>
         </Form>
     </div>

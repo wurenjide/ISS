@@ -13,10 +13,10 @@
  .logo {
    height: 32px;
    margin: 16px;
-   background: rgba(255, 255, 255, 0.3);
+   //  background: rgba(255, 255, 255, 0.3);
    font-size: 20px;
    text-align: center;
-   color: white;
+   //  color: white;
  }
 
  .header {
@@ -35,11 +35,7 @@
  }
 
  .icon {
-   stroke: rgb(255, 255, 255, 0.3);
- }
-
- .icon:hover {
-   stroke: white;
+   fill: currentColor;
  }
 
  .body {
@@ -48,5 +44,38 @@
    position: relative;
    display: flex;
    justify-content: center;
-   background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+   //  background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+   //  background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+   background-image: linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%);
+   // background-image: linear-gradient(120deg, #a1c4fd 0%, #ffffff 100%);
+ }
+
+ @font-face {
+   font-family: honglei;
+   src: url(../../assets/font/HongLeiXingShuJianTi-2.otf);
+ }
+
+ .han {
+   font-size: 30px;
+   color: #0e94ea;
+   font-family: honglei;
+   font-weight: bold;
+ }
+
+ .sider {
+   //  background-image: linear-gradient(-225deg, #D7FFFE 0%, #FFE6FA 100%)
+   overflow: 'auto';
+   height: '100vh';
+   position: 'sticky';
+   top: 0;
+   left: 0;
+   bottom: 0;
+   z-index: 10;
+   //  background-image: 'linear-gradient(to top, #bdc2e8 0%, #bdc2e8 1%, #e6dee9 100%)';
+   background-image: linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%);
+ }
+
+ .layout {
+   background-image: linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%);
+
  }

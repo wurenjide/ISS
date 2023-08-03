@@ -1,13 +1,13 @@
 //判断是否登录
+import qs from "qs"
 export const verifyLogin = () => {
-    let is_login = localStorage.getItem("is_login");
-    let is_administrator = localStorage.getItem("is_administrator");
-    return { is_login, is_administrator };
+    let token = localStorage.getItem("token");
+    let user =qs.parse(localStorage.getItem("user")) ;
+    return { token, user };
 }
 
 //退出登录
 export const loginOut = () => {
-    localStorage.removeItem("uid");
-    localStorage.removeItem("is_administrator");
-    localStorage.removeItem("is_login");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 }

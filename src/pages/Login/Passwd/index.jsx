@@ -10,34 +10,32 @@ const Passwd = (props) => {
     const navigate = useNavigate();
     const uselocation = useLocation();
     const onFinish = async (values) => {
-        // let res = await loginByPassword(values);
-        // if (res.code == "success") {
-        //     let us=qs.stringify(res.data)
-        //     localStorage.setItem("user",us);
-        //     localStorage.setItem("is_login", 1);
-        //     localStorage.setItem("is_administrator", values.is_administrator);
-        //     message.success("登录成功!")
-        //     if (uselocation.pathname.slice(-6) == "/admin") {
-        //         localStorage.setItem("is_administrator", 1); 
-        //         navigate("/admin");
-        //     } else {
-        //         localStorage.setItem("is_administrator", 0); 
-        //         navigate("/user");
-        //     }
-        // }else if(res.data == "fail"){
-        //     message.error(res.message)
-        // }
-        console.log(values)
-        localStorage.setItem("id", 1)
-        localStorage.setItem("is_login", 1);
-        if (uselocation.pathname.slice(-6) == "/admin") {
-            localStorage.setItem("is_administrator", 1); 
-            navigate("/admin");
-        } else {
-            localStorage.setItem("is_administrator", 0); 
-            navigate("/user");
+        let res = await loginByPassword(values);
+        if (res.code == "success") {
+            let us = qs.stringify(res.data)
+            localStorage.setItem("user", us);
+            localStorage.setItem("token", "1")
+            message.success("登录成功!")
+            if (uselocation.pathname.slice(-6) == "/admin") {
+                navigate("/admin");
+            } else {
+                navigate("/user");
+            }
+        } else if (res.code == "fail") {
+            message.error(res.message)
+        }else if(res.data=="fail"){
+            message.error(res.message)
         }
-        message.success("登录成功!")
+        // localStorage.setItem("id", 1)
+        // localStorage.setItem("is_login", 1);
+        // if (uselocation.pathname.slice(-6) == "/admin") {
+        //     localStorage.setItem("is_administrator", 1); 
+        //     navigate("/admin");
+        // } else {
+        //     localStorage.setItem("is_administrator", 0); 
+        //     navigate("/user");
+        // }
+        // message.success("登录成功!")
     };
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
@@ -80,20 +78,6 @@ const Passwd = (props) => {
                 >
                     <Input.Password placeholder="请数输入密码" prefix={<LockOutlined />} size="large" style={{ borderRadius: 40 }} />
                 </Form.Item>
-                {/* <Form.Item name="is_administrator"
-                    rules={[
-                        {
-                            required: true,
-                            message: '选择身份',
-                        },
-                    ]}
-                    wrapperCol={{ sm: { span: 24, offset: 1 }, xs: { span: 24, offset: 1 } }}
-                >
-                    <Radio.Group>
-                        <Radio value="0">员工</Radio>
-                        <Radio value="1">管理员</Radio>
-                    </Radio.Group>
-                </Form.Item> */}
                 <Form.Item
                     wrapperCol={{ sm: { span: 24 }, xs: { span: 24 } }}
                 >

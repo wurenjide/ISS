@@ -4,7 +4,9 @@ import dayjs from 'dayjs';
 import qs from "qs"
 import { EyeTwoTone, EyeInvisibleOutlined } from '@ant-design/icons';
 import { getStaffInfo, deleteStaffInfo, updateStaffInfo, searchStaffInfo, addStaffInfo } from "../../../api/Admin/Staff"
-import { Button, Form, Input, InputNumber, Popconfirm, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Avatar, message } from 'antd';
+import { Button, Form, Input, InputNumber, Popconfirm, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Avatar, message, Select } from 'antd';
+import { getAllStore } from "../../../api/Admin/Store"
+import { publicIp } from '../../../config/apiUrl';
 
 const Staff = () => {
 
@@ -16,70 +18,33 @@ const Staff = () => {
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [user, setUser] = useState({})
+  const [user, setUser] = useState(qs.parse(localStorage.getItem("user")))
+  const [store, setStore] = useState("");
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
-  const getData = async (values) => {
+  const getData = async () => {
     setLoading(true)
-    values.id = user.id;
-    values.storeId = user.storeId;
-    values.page=page
-    let res = await getStaffInfo(values)
+    let data = {
+      storeId: user.storeId,
+      page: page,
+      name: form.getFieldValue("name")
+    }
+    let res = await getStaffInfo(data)
     if (res.code == "success") {
-      setData(res.data.employee)
+      setData(res.data.users)
       setTotal(res.data.total)
     }
     setLoading(false)
   }
   useState(() => {
-    let user = qs.parse(localStorage.getItem("user"))
-    setUser(user)
     getData()
-  }, [])
+  })
   useEffect(() => {
-    getData(form.getFieldValue())
+    console.log(page)
+    getData()
   }, [page]);
 
-  const showDrawer = (title, s) => {
-    setUseIn(s)
-    setTitle(title)
-    setDrawer(true);
-  };
-  const onCloseDrawer = () => {
-    setDrawer(false);
-    setUseIn({})
-  };
 
-
-  const onFinish = async (values) => {
-    if (title == "修改") {
-      let res = await updateStaffInfo(values)
-      if (res.code == "success") {
-        message.success(res.message)
-        getData(form.getFieldValue())
-        setDrawer(false)
-      }
-    } else if (title == "新增") {
-      let res = await addStaffInfo(values)
-      if (res.code == "success") {
-        message.success(res.message)
-        getData(form.getFieldValue())
-        setDrawer(false)
-      }
-    } else {
-      alert("操作失败，请刷新后重试")
-    }
-  };
-  const onReset = () => {
-    form.resetFields();
-  };
-
-  const deleteStaff = async (s) => {
-    let res = await deleteStaffInfo(s);
-    if (res.code == "success") {
-      message.success(res.message)
-      getData(form.getFieldValue())
-    }
-  }
 
   const columns = [
     {
@@ -99,13 +64,6 @@ const Staff = () => {
       title: '性别',
       dataIndex: 'sex',
       width: 60,
-      render: (_, s) => {
-        if (s.sex == 0) {
-          return <div>女</div>
-        } else {
-          return <div>男</div>
-        }
-      }
     },
     {
       title: '邮箱',
@@ -134,57 +92,120 @@ const Staff = () => {
       render: (s) => <div>
         <Space>
           <Button onClick={() => showDrawer('修改', s)}>修改</Button>
-          <Popconfirm
-            description="是否删除这条数据?"
-            onConfirm={() => deleteStaff(s)}
-            okText="是"
-            cancelText="否"
-          >
-            <Button>删除</Button>
-          </Popconfirm>
         </Space>
       </div>,
     },
   ];
+  const showDrawer = (title, s) => {
+    setUseIn(s)
+    setTitle(title)
+    setDrawer(true);
+  };
+  const onCloseDrawer = () => {
+    setDrawer(false);
+    setUseIn({})
+  };
+  const onFinish = async (values) => {
+    if (title == "修改") {
+      let res = await updateStaffInfo(values)
+      if (res.code == "success") {
+        message.success(res.message)
+        getData(form.getFieldValue())
+        setDrawer(false)
+      }
+    } else if (title == "新增") {
+      let res = await addStaffInfo(values)
+      if (res.code == "success") {
+        message.success(res.message)
+        getData(form.getFieldValue())
+        setDrawer(false)
+      }
+    } else {
+      alert("操作失败，请刷新后重试")
+    }
+  };
+  const onReset = () => {
+    form.resetFields();
+  };
 
+  const deleteStaff = async () => {
+    let res = await deleteStaffInfo(selectedRowKeys);
+    if (res.code == "success") {
+      message.success(res.message)
+      getData(form.getFieldValue())
+    }
+  }
   const pageChange = (page, pageSize) => {
+    console.log(page, pageSize)
     setPage(page)
   }
 
+  const onSelectChange = (newSelectedRowKeys) => {
+    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+  const onSearch = () => {
+    getData()
+  }
+
   return <div>
-    <Form form={form} name="control-hooks" onFinish={onFinish}>
+    <Form form={form} name="control-hooks" onFinish={onSearch}>
       <Row gutter={16}>
         <Col span={4}>
           <Form.Item name="name" label="姓名">
             <Input placeholder="请输入员工姓名" />
           </Form.Item>
+
         </Col>
+        {store != "" ?
+          <Col span={2}>
+            <Form.Item label="门店id" name="storeId">
+              <Select options={store} />
+            </Form.Item>
+          </Col>
+          : <></>}
         <Col span={6}>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
-              搜索
-            </Button>
-            <Button htmlType="button" onClick={onReset}>
-              重置
-            </Button>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                搜索
+              </Button>
+              <Button htmlType="button" onClick={onReset}>
+                重置
+              </Button>
+            </Space>
           </Form.Item>
         </Col>
-        <Col span={6}></Col>
-        <Col span={4}></Col>
-        <Col span={4} >
-          <Button
-            style={{ float: "right" }}
-            onClick={() => showDrawer('新增', {})}>新增</Button>
+        <Col span={4} push={10}>
+          <Space style={{ display: "flex", justifyContent: "flex-end" }}>
+            <a href={ publicIp+"/manage/exportExcel/writeUserToExcel/"+user.storeId }><Button>导出</Button></a>
+            <Button onClick={() => showDrawer('新增', {})}>新增</Button>
+            <Popconfirm
+              title="删除"
+              description="是否删除这些数据?"
+              onConfirm={deleteStaff}
+              okText="是"
+              cancelText="否"
+            >
+              <Button danger>删除</Button>
+            </Popconfirm>
+
+          </Space>
         </Col>
       </Row>
     </Form>
     <Table columns={columns} dataSource={data}
       rowKey={r => r.id}
-      pagination={{ position: ["bottomCenter"], showSizeChanger: false, pageChange: pageChange, page: page, total: total }}
+      pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange, page: page, total: total }}
+      rowSelection={rowSelection}
       loading={loading}
     />
-    <Drawer title={title} open={drawer} onClose={onCloseDrawer} destroyOnClose={true}>
-      <Form>
+    <Drawer title={title} open={drawer} onClose={onCloseDrawer} destroyOnClose={true} getContainer={false}>
+      <Form onFinish={onFinish}>
         <Form.Item name="id" initialValue={useIn.id} hidden>
           <Input />
         </Form.Item>
@@ -196,8 +217,8 @@ const Staff = () => {
         </Form.Item>
         <Form.Item label="性别" name="sex" initialValue={useIn.sex}>
           <Radio.Group>
-            <Radio value={0}> 男 </Radio>
-            <Radio value={1}> 女 </Radio>
+            <Radio value="男"> 男 </Radio>
+            <Radio value="女"> 女 </Radio>
           </Radio.Group>
         </Form.Item>
         <Form.Item label="职位" name="career" initialValue={useIn.career}>
@@ -212,11 +233,8 @@ const Staff = () => {
         <Form.Item label="邮箱" name="email" initialValue={useIn.email}>
           <Input />
         </Form.Item>
-        <Form.Item label="密码" name="password" initialValue={useIn.password}>
-          <Input.Password />
-        </Form.Item>
         <Form.Item>
-          <Button>确认</Button>
+          <Button type="primary" htmlType="submit">确认</Button>
         </Form.Item>
       </Form>
     </Drawer>

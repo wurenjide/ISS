@@ -1,13 +1,16 @@
 import request from "../../../utils/request";
-export function getStore(data) {
-    return request({ method: "get", url: "getAttInfo", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+export function getAllStore() {
+    return request({ method: "get", url: "/manage/store/searchAllStore"});
 }
-export function searchAttInfo(data){
-    return request({ method: "get", url: "searchAttInfo", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+export function getStoreById(data){
+    return request({ method: "get", url: "/manage/store/search/"+data.storeId});
 }
 export function updateStore(data){
-    return request({ method: "post", url: "updateAttInfo", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+    return request({ method: "post", url: "/manage/store/changeStoreInfo", data});
 }
 export function deleteS(data){
     return request({ method: "post", url: "deleteS", data, headers: { "Content-Type": "application/x-www-form-urlencoded" } });
+}
+export function addStore(data){
+    return request({ method: "post", url: "/manage/store/addStore", data });
 }

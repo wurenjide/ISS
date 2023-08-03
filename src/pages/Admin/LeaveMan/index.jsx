@@ -1,12 +1,13 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import style from "./index.module.scss";
-import { Button, Form, Input, Select, Col, Row, Table, Tag, Drawer, Space, Pagination, message } from 'antd';
-import { getLeaveInfor, updateLeave } from "../../../api/Admin/LeaveMan"
+import { Button, Form, Input, Select, Col, Row, Table, Tag, Drawer, Space, Pagination, message, Popconfirm } from 'antd';
+import { getLeaveInfor, updateLeave, deleteLeave } from "../../../api/Admin/LeaveMan"
+import qs from "qs"
+import { deleteLeaveInfo } from '../../../api/User/Leave';
+import { publicIp } from '../../../config/apiUrl';
 const { TextArea } = Input;
 
 const LeaveMan = () => {
-
-
 
   const [data, setData] = useState([])
   const [open, setOpen] = useState(false);
@@ -16,7 +17,7 @@ const LeaveMan = () => {
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [user,setUser]=useState({})
+  const [user, setUser] = useState(qs.parse(localStorage.getItem("user")))
   const columns = [
     {
       title: '员工名称',
@@ -84,29 +85,33 @@ const LeaveMan = () => {
       }
     },
   ];
-  
+
   const getData = async (values) => {
-    // setLoading(true)
-    values.id=user.id;
-    values.storeId=user.storeId;
-    values.page=page
-    let res=await getLeaveInfor(values)
+    let data = {
+      storeId: user.storeId,
+      page: page,
+    }
+    if (values !== undefined && {} && "" && null) {
+      data = {
+        ...data,
+        name: values.name != undefined ? "" : values.name,
+        status: values.status != undefined ? "" : values.status
+      }
+    }
+    let res = await getLeaveInfor(data)
     if (res.code == "success") {
       setData(res.data.writtens)
       setTotal(res.data.total)
-  }
+    }
     setLoading(false)
   }
 
   useState(() => {
-    let user=localStorage.getItem("user")
-    setUser(user)
-    getData(form.getFieldValue)
+    getData()
   })
   useEffect(() => {
-    getData(form.getFieldValue)
+    getData(form.getFieldsValue())
   }, [page]);
-
   const pageChange = (page, pageSize) => {//页码改变时
     setPage(page)
   };
@@ -141,29 +146,41 @@ const LeaveMan = () => {
     getData(values)
   };
   const onFinish = async (values) => {
-    let res = await updateLeave(data);
+
+    let res = await updateLeave(values);
     if (res.code == "success") {
       message.success("修改成功")
-      getData(form.getFieldValue)
+      getData(form.getFieldValue())
+      setOpen(false)
     }
     if (values.status == "审批中") {
       message.info("该请假条还未审批！")
+      setOpen(false)
     }
   };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
+  const deleteLeave = async () => {
+    let res = await deleteLeaveInfo(selectedRowKeys);
+    if (res.code == "success") {
+      message.success("成功")
+      getData(form.getFieldValue())
+    }
+  }
+
+
 
   return <div>
     <Form form={form} name="control-hooks" onFinish={onSearch}>
-      <Row gutter={16}>
+      <Row gutter={20}>
         <Col span={4}>
           <Form.Item name="name" label="姓名">
             <Input placeholder="请输入员工姓名" />
           </Form.Item>
         </Col>
         <Col span={4}>
-          <Form.Item name="role" label="状态"
+          <Form.Item name="status" label="状态"
             rules={
               [
 
@@ -191,20 +208,37 @@ const LeaveMan = () => {
         </Col>
         <Col span={6}>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
-              搜索
-            </Button>
-            <Button htmlType="button" onClick={onReset}>
-              重置
-            </Button>
+            <Space>
+
+              <Button type="primary" htmlType="submit">
+                搜索
+              </Button>
+              <Button htmlType="button" onClick={onReset}>
+                重置
+              </Button>
+
+            </Space>
           </Form.Item>
         </Col>
-        <Col span={2}></Col>
+        <Col span={3} push={7}>
+          <Space> 
+            <a href={publicIp + "/manage/exportExcel/writeWrittenToExcel/" + user.storeId}><Button>导出</Button></a>
+            <Popconfirm
+              title="删除"
+              description="是否删除这些数据?"
+              onConfirm={deleteLeave}
+              okText="是"
+              cancelText="否"
+            >
+              <Button danger>删除</Button>
+            </Popconfirm>
+          </Space>
+        </Col>
 
       </Row>
     </Form>
     <Table rowSelection={rowSelection} columns={columns} dataSource={data} total={1000}
-      pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange,page:page,total:total }}
+      pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange, page: page, total: total }}
       rowKey={r => r.id}
       loading={loading}
     />
@@ -214,6 +248,7 @@ const LeaveMan = () => {
       onClose={onClose}
       open={open}
       destroyOnClose={true}
+      getContainer={false}
     >
       <Form
         onFinish={onFinish}
@@ -221,9 +256,9 @@ const LeaveMan = () => {
         autoComplete="off"
       >
         <Form.Item initialValue={drawer.storeId} name="storeId" label="门店id" hidden>
-          <Input/>
+          <Input />
         </Form.Item>
-       <Form.Item initialValue={drawer.employeeId} name="employeeId" label="用户id" hidden>
+        <Form.Item initialValue={drawer.employeeId} name="employeeId" label="用户id" hidden>
           <Input disabled />
         </Form.Item>
         <Form.Item initialValue={drawer.id} name="id" label="假条id" hidden>

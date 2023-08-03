@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { Button, Form, Input, InputNumber, Select, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Popconfirm, message  } from 'antd';
-import { searchAttInfo, updateStore,deleteS } from "../../../../api/Admin/Store"
+import { Button, Form, Input, InputNumber, Select, Col, Row, Table, Modal, Space, Drawer, Radio, DatePicker, Popconfirm, message } from 'antd';
+import { searchAttInfo, updateStore, deleteS, addStore,getAllStore } from "../../../../api/Admin/Store"
 
 
 const StoreSA = () => {
@@ -8,6 +8,7 @@ const StoreSA = () => {
     const [open, setOpen] = useState(false);
     const [store, setStore] = useState({})
     const [data, setData] = useState([]);
+    const [title, setTitle] = useState("")
 
     const columns = [
         {
@@ -27,7 +28,7 @@ const StoreSA = () => {
         },
         {
             title: '员工数目',
-            dataIndex: 'employee_num',
+            dataIndex: 'employeeNum',
         },
         {
             title: "操作",
@@ -36,35 +37,17 @@ const StoreSA = () => {
             width: 110,
             render: (s) => <div>
                 <Space>
-                    <Button onClick={() => showDrawer(s)}>修改</Button>
-                    <Popconfirm 
-                    description="是否删除这条数据?"
-                    onConfirm={() => deleteStore(s)}
-                    okText="是"
-                    cancelText="否"
-                    >
-                    <Button>删除</Button>
-                    </Popconfirm>
+                    <Button onClick={() => showDrawer(s, "修改")}>修改</Button>
                 </Space>
             </div>,
         },
     ]
     const getData = async (values) => {
-        let res = await searchAttInfo(values)
-        let d = []
-        for (let i = 0; i < 100; i++) {
-            d.push({
-                id: i,
-                name: "aaa" + i,
-                address: "sad" + i + "asda",
-                size: i,
-                employee_num: "20",
-            })
-        }
-        setData(d)
+        let res = await getAllStore()
+        setData(res.data)
     }
     useState(() => {
-        getData(form.getFieldValue())
+        getData()
     })
     //搜索
     const onSearch = () => {
@@ -74,7 +57,8 @@ const StoreSA = () => {
         form.resetFields();
     };
 
-    const showDrawer = (s) => {
+    const showDrawer = (s, title) => {
+        setTitle(title)
         setStore(s)
         setOpen(true)
     }
@@ -82,15 +66,25 @@ const StoreSA = () => {
         setOpen(false)
     }
     const onFinish = async (values) => {
-        let res = await updateStore(values);
-        if(res.code=="success"){
-            message.success(res.message)
-            getData(form.getFieldValue())
+        if (title == "修改") {
+            let res = await updateStore(values);
+            if (res.code == "success") {
+                message.success(res.message)
+                getData(form.getFieldValue())
+            }
+        } else {
+            let res = await addStore(values);
+            if (res.code == "success") {
+                message.success(res.message)
+                getData(form.getFieldValue())
+                onCloseDrawer()
+            }
         }
+
     }
     const deleteStore = async (value) => {
         let res = await deleteS(value);
-        if(res.code=="success"){
+        if (res.code == "success") {
             message.success(res.message)
             getData(form.getFieldValue())
         }
@@ -116,18 +110,20 @@ const StoreSA = () => {
                         </Space>
                     </Form.Item>
                 </Col>
-                <Col span={6}></Col>
-                <Col span={4}></Col>
+                <Col span={2} push={12}>
+                    <Button onClick={() => showDrawer({}, "新建")}>新建门店</Button>
+                </Col>
             </Row>
         </Form>
         <Table columns={columns} dataSource={data} rowKey={r => r.id}
             pagination={false}
         />
         <Drawer
-            title="修改"
+            title={title}
             open={open}
             onClose={onCloseDrawer}
             destroyOnClose={true}
+            getContainer={false}
         >
             <Form onFinish={onFinish}>
                 <Form.Item name="id" initialValue={store.id} hidden>
@@ -142,9 +138,10 @@ const StoreSA = () => {
                 <Form.Item name="size" initialValue={store.size} label="门店面积" >
                     <Input />
                 </Form.Item>
-                <Form.Item name="employee_num" initialValue={store.employee_num} label="门店人数">
+                {title == "新建" ? <></> : <Form.Item name="employeeNum" initialValue={store.employeeNum} label="门店人数">
                     <Input disabled />
-                </Form.Item>
+                </Form.Item>}
+
                 <Form.Item>
                     <Button type="primary" htmlType="submit">提交</Button>
                 </Form.Item>

@@ -6,6 +6,9 @@ import { setCode } from "../../../api/common/code";
 import dayjs from "dayjs";
 import { render } from "@testing-library/react";
 import { getAllStore } from "../../../api/User/Store";
+import {addPerInfo} from "../../../api/User/Preference"
+import careers from "../../../assets/career";
+
 const AdminRe = () => {
 
 
@@ -16,7 +19,7 @@ const AdminRe = () => {
     })
     const [form] = Form.useForm();
     const navigate = useNavigate();
-    const [career, setCareer] = useState();
+    const [career, setCareer] = useState("");
     const [store,setStore]=useState({});
 
     const getData=async()=>{
@@ -57,10 +60,11 @@ const AdminRe = () => {
             let res = await register(values);
             if (res.code == "success") {
                 message.success(res.message)
-                console.log(values)
+                
+                let r=await addPerInfo({employeeId:res.data.id,rangeTime:"1,2,3,4,5,6,7",startTime:"6:00",endTime:"23:00",timeLength:"24",lunchTime:"0",dinnerTime:"0",storeId:res.data.storeId,weekTime:40})
                 navigate("/login")
             } else {
-                message.error("注册失败")
+                message.error(res.message)
             }
         } catch (error) {
             console.log("error", error)
@@ -219,24 +223,11 @@ const AdminRe = () => {
                         message: '身份字段还未选择!',
                     }]}
                 >
-                    <Select options={[
-                        {
-                            label: "管理员",
-                            value: "管理员",
-                        },
-                        {
-                            label: "普通店员",
-                            value: "普通店员",
-                        },
-                        {
-                            label: "超级管理员",
-                            value: "超级管理员",
-                        }
-                    ]}
+                    <Select options={careers}
                         onChange={onChangeS}
                     />
                 </Form.Item>
-                {career == "普通店员" ?  <Form.Item label="门店id" name="storeId"
+                {career!= "超级管理员"&&career!="" ?  <Form.Item label="门店id" name="storeId"
                     rules={[{
 
                         required: true,

@@ -28,6 +28,6 @@ export const getPosition = () => {
         console.log(1)
         navigator.geolocation.getCurrentPosition(geoSuccess, geoError,options)
     } else {
-        alert('浏览器不支持地理定位。')
+        alert('浏览器不支持地理定位。');
     }
 }

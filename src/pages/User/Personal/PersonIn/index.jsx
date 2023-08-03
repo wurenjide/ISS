@@ -1,14 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import style from "./index.module.scss"
 import dayjs from 'dayjs';
 import { PlusOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Button, Form, Input, Select, Col, Row, Table, Avatar, Radio, DatePicker, Upload, message, InputNumber } from 'antd';
 import qs from "qs"
-import  upload  from "../../../../api/common/upload"
+import upload from "../../../../api/common/upload"
+import { updataPersonInfo, getPersonInfo } from "../../../../api/User/Person"
 const getBase64 = (img, callback) => {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result));
     reader.readAsDataURL(img);
-};
+  };
 const beforeUpload = (file) => {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
     if (!isJpgOrPng) {
@@ -24,65 +26,81 @@ const beforeUpload = (file) => {
 
 const PersonIn = () => {
     const [user, setUser] = useState(qs.parse(localStorage.getItem("user")));
+    const [use, setUse] = useState(qs.parse(localStorage.getItem("user")));
     const [loading, setLoading] = useState(false);
-    const [imageUrl, setImageUrl] = useState();
+    const [imageUrl, setImageUrl] = useState("");
     const handleChange = async (info) => {
         console.log(info)
         if (info.file.status === 'uploading') {
             setLoading(true);
-            let file = new FormData()
-            file.append('file',info.file.originFileObj )
-            console.log(info.file.originFileObj)
-
-            const res = await upload(file);
-            console.log(res)
-            
-            // return;
+            return;
         }
         if (info.file.status === 'done') {
             // Get this url from response in real world.
             getBase64(info.file.originFileObj, (url) => {
-                setLoading(false);
-                setImageUrl(url);
+              setLoading(false);
+              getData()
+            //   setImageUrl(url);
             });
-        }
+          }
     };
     const uploadButton = (
-        <div>
-            {loading ? <LoadingOutlined /> : <PlusOutlined />}
-            <div
-                style={{
-                    marginTop: 8,
-                }}
-            >
-                Upload
+        <div className={style["uploadv"]}>
+            <div>
+                {loading ? <LoadingOutlined /> : <PlusOutlined />}
+                <div
+                    style={{
+                        marginTop: 8,
+                    }}
+                >
+                    Upload
+                </div>
             </div>
         </div>
     );
+    const getData = async () => {
+        let res = await getPersonInfo({ id: user.id });
+        if (res.code == "success") {
+            setUse(res.data)
+            setUser(res.data)
+            localStorage.setItem("user",qs.stringify(res.data))
+        }
+    }
+    useState(() => {
+        getData()
+    })
+    const onFinish = async (value) => {
+        let res = await updataPersonInfo(value)
+        if (res.code == "success") {
+            message.success("成功")
+            getData()
+        }
+    }
 
 
     return <div style={{ textAlign: "center", maxWidth: 400, margin: "auto" }}>
         <div style={{ padding: 20 }}>
             <Upload
-                name="avatar"
-                listType="picture-card"
+                name="file"
+                listType="picture-circle"
                 className="avatar-uploader"
                 showUploadList={false}
-                // data={{id:user.id}}
-                // action="http://192.168.2.115:10010/personal/upload/avatarUpload"
+                data={{ id: user.id }}
+                action="http://192.168.43.114:10010/personal/upload/avatarUpload"
                 beforeUpload={beforeUpload}
                 onChange={handleChange}
             >
-                {imageUrl ? (<Avatar size={250} />) : (uploadButton)}
-
-
+                {user.avatar?(<Avatar size={100} src={user.avatar} shape="circle" />):imageUrl ? (<Avatar size={100} src={imageUrl} shape="circle" />) : (uploadButton)}
             </Upload>
         </div>
-        <Form style={{ textAlign: "left" }}>
-            <Form.Item initialValue={user.id} name="id" hidden>
+        <Form style={{ textAlign: "left" }} onFinish={onFinish}>
+            <Form.Item initialValue={use.avatar} name="avatar" hidden>
                 <Input />
             </Form.Item>
-            <Form.Item label="姓名" name="name" initialValue={user.name}
+            <Form.Item initialValue={use.id} name="id" hidden>
+                <Input />
+            </Form.Item>
+            <Form.Item label="姓名" name="name" initialValue={use.name}
                 rules={[{
                     required: true,
                     message: '姓名不能为空!',
@@ -90,7 +108,7 @@ const PersonIn = () => {
             >
                 <Input />
             </Form.Item>
-            <Form.Item label="年龄" name="age" initialValue={user.age}
+            <Form.Item label="年龄" name="age" initialValue={use.age}
                 rules={[{
                     required: true,
                     message: '年龄不能为空!',
@@ -98,7 +116,7 @@ const PersonIn = () => {
             >
                 <InputNumber />
             </Form.Item>
-            <Form.Item label="性别" name="sex" initialValue={user.sex}
+            <Form.Item label="性别" name="sex" initialValue={use.sex}
                 rules={[{
                     required: true,
                     message: '性别不能为空!',
@@ -108,14 +126,14 @@ const PersonIn = () => {
                     <Radio value="女"> 女 </Radio>
                 </Radio.Group>
             </Form.Item>
-            <Form.Item label="生日" name="birthday" initialValue={dayjs(user.birthday, "YYYY-MM-DD")}
+            <Form.Item label="生日" name="birthday" initialValue={dayjs(use.birthday, "YYYY-MM-DD")}
                 rules={[{
                     required: true,
                     message: '生日不能为空!',
                 }]}>
                 <DatePicker />
             </Form.Item>
-            <Form.Item label="邮箱" name="email" initialValue={user.email}
+            <Form.Item label="邮箱" name="email" initialValue={use.email}
                 rules={[{
 
                     required: true,
@@ -127,18 +145,18 @@ const PersonIn = () => {
             >
                 <Input />
             </Form.Item>
-            <Form.Item label="手机号" name="phone" initialValue={user.phone}
+            <Form.Item label="手机号" name="phone" initialValue={use.phone}
                 rules={[{
                     required: true,
                     message: '手机号不能为空!',
                 }, {
-                    pattern: '^[1][3,4,5,7,8][0-9]{9}$',
+                    pattern: '^[1][3,4,5,7,8,9][0-9]{9}$',
                     message: "请输入正确的手机号"
                 }]}
             >
                 <Input disabled />
             </Form.Item>
-            <Form.Item label="身份字段" name="career" initialValue={user.career}
+            <Form.Item label="身份字段" name="career" initialValue={use.career}
                 rules={[{
 
                     required: true,
@@ -156,11 +174,11 @@ const PersonIn = () => {
                     }
                 ]} />
             </Form.Item>
-            <Form.Item label="门店id" name="storeId" initialValue={user.storeId}>
+            <Form.Item label="门店id" name="storeId" initialValue={use.storeId}>
                 <Input disabled />
             </Form.Item>
             <Form.Item>
-                <Button>保存修改</Button>
+                <Button type="primary" htmlType="submit">保存修改</Button>
             </Form.Item>
         </Form>
     </div>

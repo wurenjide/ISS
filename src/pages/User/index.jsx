@@ -2,35 +2,53 @@
 //引入antd全局样式
 import "antd/dist/reset.css";
 import style from "./index.module.scss";
-import React, { Children, useState } from 'react';
-import { Routes, Route, useRoutes, useNavigate } from 'react-router-dom';
+import React, { Children, useState,useEffect } from 'react';
+import { Routes, Route, useRoutes, useNavigate,useLocation } from 'react-router-dom';
 import { getPosition } from "../../utils/map";
+import imge from "../../assets/logo.png"
 import routes from '../../router'
 import {
-    CalendarOutlined,
+    ScheduleOutlined,
     HomeOutlined,
-    VideoCameraOutlined,
+    HistoryOutlined,
+    HeartOutlined,
+    FormOutlined,
+    ClockCircleOutlined,
+    BellOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, theme, Button, Dropdown, message, Space, Avatar, } from 'antd';
+import { Layout, Menu, theme, Button, Dropdown, message, Space, Avatar, Input, Image } from 'antd';
 import Personal from "./Personal";
 import Leave from "./Leave";
 import UserHome from "./Home"
 import Schedule from "./Schedule";
-import Rule from "./Rule";
+import HistoryIn from "./HistoryIn";
 import Suggest from "../User/Suggest";
+import Loving from "./Loving";
+import Community from "./Community";
+import { getLoction } from "../../api/common/location"
+import { clockIn } from "../../api/Admin/AttMan"
+import dayjs from "dayjs";
+import qs from "qs"
+import userEvent from "@testing-library/user-event";
 const { Header, Sider, Content } = Layout;
 const User = () => {
     const {
         token: { colorBgContainer },
     } = theme.useToken();
+    const locaation = useLocation();
+    const { pathname, from } = locaation;
+    const [menukey, setMenukey] = useState([])
 
     const navigate = useNavigate();
-    const handleRouter = (e) => {
+    const [user, setUser] = useState(qs.parse(localStorage.getItem("user")));
+    const handleRouter = async (e) => {
         console.log(e)
         if (e.key == "/quit") {
             localStorage.clear()
             navigate("/login")
         } else if (e.key == "/sign") {
+            let res = await getLoction({ ak: "kcXCzrwuzKkQKStGfbaxV3XrXV25j734", ip: "218.76.65.101", coor: "bd09ll" })
+            console.log(res)
             getPosition()
         }
         else {
@@ -43,18 +61,25 @@ const User = () => {
             key: '/user/personal',
         },
         {
-            label: (<a onClick={() => { handleRouter({ key: "/sign" }) }}>签到</a>),
-            key: "/sign"
-        },
-        {
             label: (<a onClick={() => { handleRouter({ key: '/quit' }) }}>退出系统</a>),
             key: '/quit',
         },
     ]
+
+    useState(() => {
+        setMenukey([pathname])
+    })
+    useEffect(() => {
+        setMenukey([pathname])
+    }, [pathname]);
+
     return (
         <Layout className={style["layout"]}>
             <Header className={style["backcolcor"]}>
                 <div className={style["header"]}>
+                    <div className={style["logo"]}>
+                        <Image src={imge} height={50} preview={false} />
+                    </div>
                     <Menu
                         theme="dark"
                         mode="horizontal"
@@ -67,58 +92,44 @@ const User = () => {
                             },
                             {
                                 key: '/user/schedule',
-                                icon: <CalendarOutlined />,
+                                icon: <ScheduleOutlined />,
                                 label: '排班表',
                             },
                             {
                                 key: '/user/leave',
-                                icon: <VideoCameraOutlined />,
+                                icon: <ClockCircleOutlined />,
                                 label: '请假',
                             },
-                            {
-                                key: "/user/rule",
-                                label: "排班偏好"
-                            },
+
                             {
                                 key: "/user/suggest",
+                                icon: <FormOutlined />,
                                 label: "提交建议",
                             },
                             {
-                                key: "/user/loving",
-                                label: "员工关怀",
+                                key: "/user/historyIn",
+                                icon: <HistoryOutlined />,
+                                label: "历史消息"
                             },
-                            // {
-                            //     key: 'user',
-                            //     label: "用户名",
-                            //     // style: { marginLeft: "auto" },
-                            //     // render: () =>  <Avatar />,
-                            //     children: [
-                            //         {
-                            //             label: '个人中心',
-                            //             key: '/user/personal',
-                            //         },
-                            //         {
-                            //             label: "签到",
-                            //             key: "/sign"
-                            //         },
-                            //         {
-                            //             label: '退出系统',
-                            //             key: '/quit',
-                            //         },
-                            //     ]
-                            // }
                         ]}
                         onClick={handleRouter}
-                        // className={style["backcolor"]}
+                        className={style["backcolor"]}
+                        selectedKeys={menukey}
                     ></Menu>
-                    <div>
-                        <Dropdown
-                            menu={{ items }}
-                            placement="bottom"
-                            style={{ display: "inline-block" }}
-                        >
-                            <Avatar src="https://tse1-mm.cn.bing.net/th/id/OIP-C.XQwonRIZtmY7lDK8s_2W1AHaLH?pid=ImgDet&rs=1" />
-                        </Dropdown>
+                    <div style={{ display: "inline-block" }}>
+                        <Space>
+                            {/* <a onClick={() => { handleRouter({ key: "/sign" }) }}><BellOutlined style={{ fontSize: 20 }} /></a>
+                            <Space.Compact>
+                                <Input size="small" style={{ borderTopLeftRadius: 40, borderBottomLeftRadius: 40, width: 60 }} id="pu" />
+                                <Button onClick={clin} style={{ borderBottomRightRadius: 40, borderTopRightRadius: 40 }}><BellOutlined /></Button>
+                            </Space.Compact> */}
+                            <Dropdown
+                                menu={{ items }}
+                                placement="bottom"
+                            >
+                                <Avatar src={user.avatar} />
+                            </Dropdown>
+                        </Space>
                     </div>
                 </div>
             </Header>
@@ -137,12 +148,12 @@ const User = () => {
                     }}
                 >
                     <Routes>
-                        <Route path="/" element={<UserHome />} />
+                        <Route path="*" element={<UserHome />} />
                         <Route path='leave' element={<Leave />} />
                         <Route path='personal' element={<Personal />} />
                         <Route path="schedule" element={<Schedule />} />
-                        <Route path="rule" element={<Rule />} />
                         <Route path="suggest" element={<Suggest />} />
+                        <Route path="historyIn" element={<HistoryIn />} />
                     </Routes>
                 </div>
             </Content>

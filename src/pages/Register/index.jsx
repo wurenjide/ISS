@@ -2,8 +2,9 @@ import style from "./index.module.scss";
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { message, Form, Input, Button, Checkbox, Radio, Space } from "antd";
+import { message, Form, Input, Button, Checkbox, Radio, Image } from "antd";
 import UserRe from "./UserRe";
+import imge from "../../assets/logo.png"
 import AdminRe from "./AdminRe";
 
 const Register = () => {
@@ -24,7 +25,9 @@ const Register = () => {
     })
 
     return <div className={style[styleDe]}>
-        <h1 style={{color:"white"}}>LOGO</h1>
+        <div className={style["logo"]}>
+            <Image src={imge} height={100} preview={false} />
+        </div>
         {/* <Radio.Group onChange={onChange} defaultValue="passwd" style={{margin:"10px"}}>
             <Radio.Button value="passwd">注册草稿1</Radio.Button>
             <Radio.Button value="note">注册草稿2</Radio.Button>

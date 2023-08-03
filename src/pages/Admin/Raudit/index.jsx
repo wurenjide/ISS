@@ -3,7 +3,7 @@ import style from "./index.module.scss";
 import dayjs from 'dayjs';
 import qs from "qs"
 import { getRauditInfo, searchRaudit, updateRaudit, deleteRaudit } from "../../../api/Admin/Raudit"
-import { Button, Form, Input, Select, Col, Row, Table, Tag, Pagination, Drawer, Radio, DatePicker, InputNumber, Avatar, message } from 'antd';
+import { Button, Form, Input, Select, Col, Row, Table, Tag, Pagination, Drawer, Radio, DatePicker, InputNumber, Avatar, message, Space } from 'antd';
 
 const Raudit = () => {
 
@@ -16,21 +16,23 @@ const Raudit = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [page, setPage] = useState(1);
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(qs.parse(localStorage.getItem("user")));
   const [total, setTotal] = useState(0);
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false)
 
   const getData = async (values) => {
-    // let data={
-    //   name:values.name?values.name:"",
-    //   status:values.status?values.status:"",
-    //   page:page,
-    //   storeId:storeId,
-    // }
+    let data = {
+      storeId: user.storeId,
+      page: page,
+    }
+    if (values !== undefined && {} && "" && null) {
+      data = {
+        ...data,
+        name: values.name !== undefined ? "" : values.name,
+        status: values.status !== undefined ? "" : values.status
+      }
+    }
     setLoading(true)
-    values.page = page
-    values.storeId = user.storeId
-    values.id=user.id
     let res = await getRauditInfo(data);
     if (res.code == "success") {
       setData(res.data.users)
@@ -40,9 +42,7 @@ const Raudit = () => {
   }
 
   useState(() => {
-    let user = qs.parse(localStorage.getItem("user"))
-    setUser(user)
-    getData(form.getFieldValue());
+    getData();
   })
   useEffect(() => {
     getData(form.getFieldValue())
@@ -130,6 +130,7 @@ const Raudit = () => {
   };
 
   const onFinish = async (values) => {
+    console.log(values)
     let res = await updateRaudit(values);
     if (res.code == "success") {
       setDrawer(false)
@@ -153,12 +154,24 @@ const Raudit = () => {
     setUseIn({})
   };
 
-  const deleteRa = async (value) => {
-    let res = await deleteRaudit(value)
+  const deleteRa = async () => {
+    let res = await deleteRaudit({ id: selectedRowKeys })
+    if (res.code == "success") {
+      message.success("成功")
+      getData(form.getFieldValue())
+    }
   }
   const onSearch = async (value) => {
-    getData(form)
+    getData(value)
   }
+  const onSelectChange = (newSelectedRowKeys) => {
+    console.log('selectedRowKeys changed: ', newSelectedRowKeys);
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
 
   return <div>
     <Form form={form} name="control-hooks" onFinish={onSearch}>
@@ -191,23 +204,25 @@ const Raudit = () => {
         </Col>
         <Col span={6}>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
-              搜索
-            </Button>
-            <Button htmlType="button" onClick={onReset}>
-              重置
-            </Button>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                搜索
+              </Button>
+              <Button htmlType="button" onClick={onReset}>
+                重置
+              </Button>
+            </Space>
           </Form.Item>
         </Col>
         <Col span={2}></Col>
         {/* <Col span={4} ><Button style={{ float: "right" }}>新增</Button></Col> */}
       </Row>
     </Form>
-    <Table columns={columns} dataSource={data} total={1000} loading={loading}
-      pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange, page: page }}
+    <Table columns={columns} dataSource={data} total={1000} loading={loading} rowSelection={rowSelection}
+      pagination={{ position: ["bottomCenter"], showSizeChanger: false, onChange: pageChange, page: page, total: total }}
       rowKey={r => r.id}
     />
-    <Drawer title={title} open={drawer} onClose={onCloseDrawer} destroyOnClose>
+    <Drawer title={title} open={drawer} onClose={onCloseDrawer} destroyOnClose={true} getContainer={false}>
       <Form onFinish={onFinish}>
         <Form.Item name="id" initialValue={useIn.id} hidden>
           <Input />

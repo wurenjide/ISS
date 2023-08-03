@@ -1,106 +1,122 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import qs from "qs"
 import { getWeekInfo } from "../../../../api/Admin/ScheduleMan"
-import { Table, Radio, Space, DatePicker, Button, Modal, Form, Input, TimePicker, Avatar } from 'antd';
+import { DownloadOutlined } from '@ant-design/icons'
+import { Table, message, Space, DatePicker, Button, Modal, Form, Input, TimePicker, Avatar } from 'antd';
+import { publicIp } from '../../../../config/apiUrl';
 const { RangePicker } = TimePicker;
 // import style from "./index.module.scss";
 
 const Week = () => {
-    const [id,setID]=useState(localStorage.getItem("id"));
+    const [user, setUser] = useState(qs.parse(localStorage.getItem("user")))
+    const [id, setID] = useState(localStorage.getItem("id"));
     const [value, setValue] = useState(null);
     const [loading, setLoading] = useState(false)
     const [data, setData] = useState([])
+    const [form] = Form.useForm()
+    const [employeeName, setEmployeeName] = useState("")
+    const [startT, setStartT] = useState(dayjs(form.getFieldValue("time")).startOf('week').format('YYYY-MM-DD'))
+    const [endT, setEndT] = useState(dayjs(form.getFieldValue("time")).endOf('week').format('YYYY-MM-DD'))
 
 
 
-    const getData = async (value) => {
+    const getData = async () => {
         setLoading(true)
-        let res = await getWeekInfo(value)
-        let monday = []
-        let tuesday = []
-        let wednesday = []
-        let thursday = []
-        let friday = []
-        let saturday = []
-        let sunday = []
-        let data1 = []
-        res.date.week.forEach((e) => {
-            switch (dayjs(e.date).day()) {
-                case 1:
-                    monday.push(e)
-                    break;
-                case 2:
-                    tuesday.push(e)
-                    break;
-                case 3:
-                    wednesday.push(e)
-                    break;
-                case 4:
-                    thursday.push(e)
-                    break;
-                case 5:
-                    friday.push(e)
-                    break;
-                case 6:
-                    saturday.push(e)
-                    break;
-                case 0:
-                    sunday.push(e)
-                    break;
-                default:
-                    break;
-            }
-        })
-        for (let i = 0; i < 5; i++) {
-            data1.push({
-                key: i,
-                monday: monday[i],
-                tuesday: tuesday[i],
-                wednesday: wednesday[i],
-                thursday: thursday[i],
-                friday: friday[i],
-                saturday: saturday[i],
-                sunday: sunday[i],
-            })
+        let data = {
+            store_id: user.storeId,
+            startTime: dayjs(form.getFieldValue("time")).startOf('week').format('YYYY-MM-DD'),
+            endTime: dayjs(form.getFieldValue("time")).endOf('week').format('YYYY-MM-DD'),
+            employeeName: employeeName
         }
-        setData(data1)
+        let res = await getWeekInfo(data)
+        if (res.code == 20000) {
+            let data1 = []
+            let max = 0
+            let r = [[], [], [], [], [], [], []]
+
+
+            res.data.weekShiftList.forEach(((item) => {
+                //将当前值item与max比较
+                max = max > item.length ? max : item.length
+            }))
+            for (let i = 0; i < max; i++) {
+                for (let j = 0; j < 7; j++) {
+                    if (res.data.weekShiftList && res.data.weekShiftList[j] && res.data.weekShiftList[j][i]) {
+                        if (res.data.weekShiftList[j][i].user) {
+                            r[j].push(res.data.weekShiftList[j][i])
+                        }
+                    }
+                }
+            }
+            max = 0
+            r.forEach(((item) => {
+                //将当前值item与max比较
+                max = max > item.length ? max : item.length
+            }))
+            for (let i = 0; i < max; i++) {
+                data1.push({
+                    key: i,
+                    monday: r[0][i],
+                    tuesday: r[1][i],
+                    wednesday: r[2][i],
+                    thursday: r[3][i],
+                    friday: r[4][i],
+                    saturday: r[5][i],
+                    sunday: r[6][i],
+                })
+            }
+            message.success(res.message)
+            setData(data1)
+        } else {
+            message.error("获取排班数据失败")
+        }
         setLoading(false)
     }
     useState(() => {
         getData()
     })
+    useEffect(() => {
+        getData()
+    }, [employeeName]);
     const onChangeTime = (time) => {
-        // console.log(time)
         setValue(time);
     };
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [staff, setStaff] = useState({});
     const onChange = (e) => {
-        // console.log(dayjs(e).day(1).format("YYYY-MM-DD"),dayjs(e).day(7).format("YYYY-MM-DD"));
+        setStartT(dayjs(form.getFieldValue("time")).startOf('week').format('YYYY-MM-DD'))
+        setEndT(dayjs(form.getFieldValue("time")).endOf('week').format('YYYY-MM-DD'))
+        getData()
     };
-    const onChangeStaff = (staff) => {
-        setStaff(staff)
-    }
-    const showModal = (e) => {
-        onChangeStaff(e)
-        setIsModalOpen(true)
-    }
     const columns = [
         {
             title: "星期一",
             dataIndex: "monday",
             render: (_, s) => {
                 let day = s.monday
+                if (day == undefined && day == null) {
+                    return (<></>)
+                }
+                let user = ""
+                if (day != undefined && day != null && day.user != undefined && day.user != null) {
+                    user = day.user
+                }
                 return (<div style={{ textAlign: "center" }}>
-                    <div>{day.start_time}-{day.end_time}</div>
-                    <Space size={10}>
-                        <Avatar src={day.avatar} />
-                        <Space direction="vertical" size={1}>
-                            <div>{day.name}</div>
-                            <div>职位：{day.career}</div>
+                    {user != "" && user != null && user != undefined ? <>
+                        <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+                        <Space size={10}>
+                            <Avatar src={user.avatar} />
+                            <Space direction="vertical" size={1}>
+                                <div>{user.name}</div>
+                                <div>职位：{user.career}</div>
+                            </Space>
                         </Space>
-                    </Space>
+                    </>
+                        : <div hidden>
+                            {/* <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+                            <div>开放班次</div> */}
+                        </div>
+                    }
                 </div>
                 )
             }
@@ -110,15 +126,30 @@ const Week = () => {
             dataIndex: "tuesday",
             render: (_, s) => {
                 let day = s.tuesday
+                if (day == undefined && day == null) {
+                    return (<></>)
+                }
+                let user = ""
+                if (day != undefined && day != null && day.user != undefined && day.user != null) {
+                    user = day.user
+                }
                 return (<div style={{ textAlign: "center" }}>
-                    <div>{day.start_time}-{day.end_time}</div>
-                    <Space size={10}>
-                        <Avatar src={day.avatar} />
-                        <Space direction="vertical" size={1}>
-                            <div>{day.name}</div>
-                            <div>职位：{day.career}</div>
+                    {user != "" && user != null && user != undefined ? <>
+                        <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+                        <Space size={10}>
+                            <Avatar src={user.avatar} />
+                            <Space direction="vertical" size={1}>
+                                <div>{user.name}</div>
+                                <div>职位：{user.career}</div>
+                            </Space>
                         </Space>
-                    </Space>
+                    </>
+                        : <div>
+                            <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+
+                            <div>开放班次</div>
+                        </div>
+                    }
                 </div>
                 )
             }
@@ -128,15 +159,30 @@ const Week = () => {
             dataIndex: "wednesday",
             render: (_, s) => {
                 let day = s.wednesday
+                if (day == undefined && day == null) {
+                    return (<></>)
+                }
+                let user = ""
+                if (day != undefined && day != null && day.user != undefined && day.user != null) {
+                    user = day.user
+                }
                 return (<div style={{ textAlign: "center" }}>
-                    <div>{day.start_time}-{day.end_time}</div>
-                    <Space size={10}>
-                        <Avatar src={day.avatar} />
-                        <Space direction="vertical" size={1}>
-                            <div>{day.name}</div>
-                            <div>职位：{day.career}</div>
+                    {user != "" && user != null && user != undefined ? <>
+                        <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+                        <Space size={10}>
+                            <Avatar src={user.avatar} />
+                            <Space direction="vertical" size={1}>
+                                <div>{user.name}</div>
+                                <div>职位：{user.career}</div>
+                            </Space>
                         </Space>
-                    </Space>
+                    </>
+                        : <div>
+                            <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+
+                            <div>开放班次</div>
+                        </div>
+                    }
                 </div>
                 )
             }
@@ -146,15 +192,30 @@ const Week = () => {
             dataIndex: "thursday",
             render: (_, s) => {
                 let day = s.thursday
+                if (day == undefined && day == null) {
+                    return (<></>)
+                }
+                let user = ""
+                if (day != undefined && day != null && day.user != undefined && day.user != null) {
+                    user = day.user
+                }
                 return (<div style={{ textAlign: "center" }}>
-                    <div>{day.start_time}-{day.end_time}</div>
-                    <Space size={10}>
-                        <Avatar src={day.avatar} />
-                        <Space direction="vertical" size={1}>
-                            <div>{day.name}</div>
-                            <div>职位：{day.career}</div>
+                    {user != "" && user != null && user != undefined ? <>
+                        <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+                        <Space size={10}>
+                            <Avatar src={user.avatar} />
+                            <Space direction="vertical" size={1}>
+                                <div>{user.name}</div>
+                                <div>职位：{user.career}</div>
+                            </Space>
                         </Space>
-                    </Space>
+                    </>
+                        : <div>
+                            <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+
+                            <div>开放班次</div>
+                        </div>
+                    }
                 </div>
                 )
             }
@@ -164,15 +225,30 @@ const Week = () => {
             dataIndex: "friday",
             render: (_, s) => {
                 let day = s.friday
+                if (day == undefined && day == null) {
+                    return (<></>)
+                }
+                let user = ""
+                if (day != undefined && day != null && day.user != undefined && day.user != null) {
+                    user = day.user
+                }
                 return (<div style={{ textAlign: "center" }}>
-                    <div>{day.start_time}-{day.end_time}</div>
-                    <Space size={10}>
-                        <Avatar src={day.avatar} />
-                        <Space direction="vertical" size={1}>
-                            <div>{day.name}</div>
-                            <div>职位：{day.career}</div>
+                    {user != "" && user != null && user != undefined ? <>
+                        <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+                        <Space size={10}>
+                            <Avatar src={user.avatar} />
+                            <Space direction="vertical" size={1}>
+                                <div>{user.name}</div>
+                                <div>职位：{user.career}</div>
+                            </Space>
                         </Space>
-                    </Space>
+                    </>
+                        : <div>
+                            <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+
+                            <div>开放班次</div>
+                        </div>
+                    }
                 </div>
                 )
             }
@@ -182,49 +258,92 @@ const Week = () => {
             dataIndex: "saturday",
             render: (_, s) => {
                 let day = s.saturday
+                if (day == undefined && day == null) {
+                    return (<></>)
+                }
+                let user = ""
+                if (day != undefined && day != null && day.user != undefined && day.user != null) {
+                    user = day.user
+                }
                 return (<div style={{ textAlign: "center" }}>
-                    <div>{day.start_time}-{day.end_time}</div>
-                    <Space size={10}>
-                        <Avatar src={day.avatar} />
-                        <Space direction="vertical" size={1}>
-                            <div>{day.name}</div>
-                            <div>职位：{day.career}</div>
+                    {user != "" && user != null && user != undefined ? <>
+                        <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+                        <Space size={10}>
+                            <Avatar src={user.avatar} />
+                            <Space direction="vertical" size={1}>
+                                <div>{user.name}</div>
+                                <div>职位：{user.career}</div>
+                            </Space>
                         </Space>
-                    </Space>
+                    </>
+                        : <div>
+                            <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+
+                            <div>开放班次</div>
+                        </div>
+                    }
                 </div>
                 )
             }
         },
         {
-            title: "星期七",
+            title: "星期日",
             dataIndex: "sunday",
             render: (_, s) => {
                 let day = s.sunday
+                if (day == undefined && day == null) {
+                    return (<></>)
+                }
+                let user = ""
+                if (day != undefined && day != null && day.user != undefined && day.user != null) {
+                    user = day.user
+                }
                 return (<div style={{ textAlign: "center" }}>
-                    <div>{day.start_time}-{day.end_time}</div>
-                    <Space size={10}>
-                        <Avatar src={day.avatar} />
-                        <Space direction="vertical" size={1}>
-                            <div>{day.name}</div>
-                            <div>职位：{day.career}</div>
+                    {user != "" && user != null && user != undefined ? <>
+                        <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+                        <Space size={10}>
+                            <Avatar src={user.avatar} />
+                            <Space direction="vertical" size={1}>
+                                <div>{user.name}</div>
+                                <div>职位：{user.career}</div>
+                            </Space>
                         </Space>
-                    </Space>
+                    </>
+                        : <div>
+                            <div>{day.startTime.slice(0,5)}-{day.endTime.slice(0,5)}</div>
+
+                            <div>开放班次</div>
+                        </div>
+                    }
                 </div>
                 )
             }
         },
     ]
 
+    const onChangeName = () => {
+        if (employeeName == "") {
+            setEmployeeName(user.name)
+        } else {
+            setEmployeeName("")
+        }
+    }
+
     return (<div>
         <div style={{ float: "left", padding: "10px" }}>
             <Space>
-                <Button>导出本周数据</Button>
-                <Button onClick={()=>{getData({id:id})}}>仅看本人</Button>
+                <a href={publicIp+"/service_schedule/admin/work-form/getShiftsExcel/" + user.storeId + "/"+startT + "/"+endT}><Button icon={<DownloadOutlined />} >导出本周数据</Button></a>
+                {employeeName ? <Button onClick={onChangeName}>查看所有</Button> : <Button onClick={onChangeName}>仅看本人</Button>}
+
             </Space>
         </div>
         <div style={{ float: "right", padding: "10px" }}>
             <Space>
-                <DatePicker onChange={onChange} picker="week" defaultValue={dayjs().day(1)} />
+                <Form form={form}>
+                    <Form.Item name="time">
+                        <DatePicker onChange={onChange} picker="week" />
+                    </Form.Item>
+                </Form>
             </Space>
         </div>
         <Table columns={columns} dataSource={data} pagination={{ position: ["none"] }}
