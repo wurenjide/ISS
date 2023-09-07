@@ -6,6 +6,7 @@ const AuthRoute = (props) => {
     const login = verifyLogin();
     const {token,user } = login;
     console.log(token)
+    user.career="超级管理员"
     if (!token) {
         return <Navigate to="/login" />
     }

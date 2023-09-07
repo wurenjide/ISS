@@ -2,12 +2,45 @@
 智能排班系统
 # 运行项目
 npm start
-# 目录说明
-- api存放所有接口
-- assets存放静态文件和一些全局css文件
-- components存放公共组件
-- pages存放路由组件
-    - admin:后台管理系统路由
-    - user:前台管理路由
-- utils存放一些需要使用的js文件
-- layout文件夹存放页面布局组件
+
+# 页面展示
+
+前台首页
+
+![img](./assets/clip_image002.png)
+
+员工排班信息按日分时段查看
+
+![img](assets/clip_image003.png)
+
+所有员工排班信息查看模块
+
+![img](assets/clip_image002-16940680315784.png)
+
+员工请假信息模块展示
+
+![img](assets/clip_image004.png)
+
+员工排班偏好修订
+
+![img](assets/clip_image006.png)
+
+后台首页
+
+![img](assets/clip_image002-169406813835613.png)
+
+排班规则管理
+
+![img](assets/clip_image002-169406818414016.png)
+
+排班表
+
+![img](assets/clip_image008.png)
+
+
+
+![img](assets/clip_image002-169406823912422.png)
+
+员工管理
+
+![img](assets/clip_image002-169406826219525.png)
